@@ -7,7 +7,5 @@ import androidx.compose.ui.Alignment
 
 @Composable
 fun NotificationScreen() {
-    Box(contentAlignment = Alignment.Center) {
-        Text("Notification Screen")
-    }
+
 }
