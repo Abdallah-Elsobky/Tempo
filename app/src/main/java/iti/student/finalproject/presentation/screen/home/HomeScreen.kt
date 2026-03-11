@@ -52,7 +52,7 @@ fun HomeScreen(onNavigateToForecast: () -> Unit = {}) {
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp)
-                .padding(top = 24.dp, bottom = 100.dp),
+                .padding(top = 24.dp, bottom = 50.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
