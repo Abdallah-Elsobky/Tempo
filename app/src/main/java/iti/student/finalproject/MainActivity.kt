@@ -43,7 +43,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen(navController: NavHostController) {
-
     Box(modifier = Modifier.fillMaxSize()) {
         NavGraph(navController)
         BottomBar(navController = navController, modifier = Modifier.align(Alignment.BottomCenter))

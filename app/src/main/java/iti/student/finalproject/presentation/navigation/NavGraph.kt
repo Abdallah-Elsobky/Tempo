@@ -18,7 +18,13 @@ fun NavGraph(navController: NavHostController) {
         startDestination = Screen.Home.route
     ) {
 
-        composable(Screen.Home.route) { HomeScreen() }
+        composable(Screen.Home.route) {
+            HomeScreen(
+                onNavigateToForecast = {
+                    navController.navigate(Screen.Forecast.route)
+                }
+            )
+        }
 
         composable(Screen.Favorites.route) { FavoritesScreen() }
 
