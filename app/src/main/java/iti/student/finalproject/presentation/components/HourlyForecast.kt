@@ -60,7 +60,7 @@ private fun HourlyCard(item: HourlyItem) {
     val secondaryColor = if (item.isActive) Color.White.copy(alpha = 0.8f) else WeatherSecondaryText
 
     Surface(
-        modifier = Modifier.width(76.dp),
+        modifier = Modifier.width(76.dp).height(160.dp),
         shape = RoundedCornerShape(20.dp),
         color = backgroundColor,
         shadowElevation = if (item.isActive) 8.dp else 0.dp
@@ -76,7 +76,7 @@ private fun HourlyCard(item: HourlyItem) {
                 color = secondaryColor
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(25.dp))
 
             Icon(
                 painter = painterResource(item.iconRes),
@@ -85,7 +85,7 @@ private fun HourlyCard(item: HourlyItem) {
                 tint = if (item.isActive) Color.White else WeatherActiveCard
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(25.dp))
 
             Text(
                 text = item.temp,

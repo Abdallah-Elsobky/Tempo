@@ -64,7 +64,7 @@ fun ForecastScreen() {
 
     val infoCards = listOf(
         WeatherInfoCard("VISIBILITY", "10 mi", "Good visibility", R.drawable.ic_sun, WeatherOrange),
-        WeatherInfoCard("PRESSURE", "1015 hPa", "Falling slightly", R.drawable.ic_wind, WeatherPurple),
+        WeatherInfoCard("PRESSURE", "1015 hPa", "Falling slightly", R.drawable.ic_pressure, WeatherPurple),
         WeatherInfoCard("UV INDEX", "4", "Moderate", R.drawable.ic_sun, WeatherYellow),
         WeatherInfoCard("DEW POINT", "56°", "Comfortable", R.drawable.ic_drop_water, WeatherTeal),
     )

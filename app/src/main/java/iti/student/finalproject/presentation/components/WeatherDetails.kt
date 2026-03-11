@@ -25,6 +25,7 @@ import iti.student.finalproject.R
 import iti.student.finalproject.ui.theme.WeatherAccentBlue
 import iti.student.finalproject.ui.theme.WeatherOrange
 import iti.student.finalproject.ui.theme.WeatherPrimaryDark
+import iti.student.finalproject.ui.theme.WeatherPurple
 import iti.student.finalproject.ui.theme.WeatherSecondaryText
 
 @Composable
@@ -48,6 +49,11 @@ fun WeatherDetails() {
             iconRes = R.drawable.ic_sun,
             iconTint = WeatherOrange
         )
+        WeatherDetailItem(
+            value = "1015 hPa",
+            iconRes = R.drawable.ic_pressure,
+            iconTint = WeatherPurple
+        )
     }
 }
 
@@ -57,8 +63,8 @@ private fun WeatherDetailItem(
     iconRes: Int,
     iconTint: Color
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Surface(
             modifier = Modifier.size(36.dp),
