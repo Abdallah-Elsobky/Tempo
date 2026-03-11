@@ -1,70 +1,69 @@
 package iti.student.finalproject
 
-import android.R
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import iti.student.finalproject.data.remote.api.RetrofitInstance
+import iti.student.finalproject.data.remote.datasource.WeatherRemoteDataSourceImpl
+import iti.student.finalproject.data.repository.WeatherRepositoryImpl
 import iti.student.finalproject.presentation.components.BottomBar
 import iti.student.finalproject.presentation.navigation.NavGraph
+import iti.student.finalproject.presentation.screen.WeatherViewModel
+import iti.student.finalproject.presentation.screen.WeatherViewModelFactory
 import iti.student.finalproject.ui.theme.FinalProjectTheme
+import iti.student.finalproject.utils.ResultState
 import kotlinx.coroutines.launch
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        lifecycleScope.launch {
-            Log.d(
-                "testo today", RetrofitInstance.api
-                    .getWeather(30.0443879, 31.2357257).toString()
+        val factory = WeatherViewModelFactory(
+            WeatherRepositoryImpl(
+                WeatherRemoteDataSourceImpl(RetrofitInstance.api)
             )
+        )
 
-            Log.d(
-                "testo forecast", RetrofitInstance.api
-                    .getHourlyForecast(30.0443879, 31.2357257).toString()
-            )
+        val viewModel: WeatherViewModel =
+            ViewModelProvider(this, factory)[WeatherViewModel::class.java]
 
+        val repo = WeatherRepositoryImpl(
+            WeatherRemoteDataSourceImpl(RetrofitInstance.api)
+        )
 
-            Log.d(
-                "testo city names", RetrofitInstance.api
-                    .getCityNamesLocalized(30.0443879, 31.2357257, 2).toString()
-            )
-
-            Log.d(
-                "testo city nemo", RetrofitInstance.api
-                    .getPossibleCities("cairo", 5).toString()
-            )
-        }
-
-
+//        lifecycleScope.launch {
+//            repo.getHourlyForecast(30.0, 31.0).collect {
+//                Log.d("loco", it.toString())
+//            }
+//        }
         setContent {
             FinalProjectTheme {
                 val navController = rememberNavController()
+                val weatherState by viewModel.weatherState.collectAsState()
+                val forecastState by viewModel.forecastState.collectAsState()
+                val cityNamesLocalizedState by viewModel.cityNamesLocalized.collectAsState()
+                val possibleCitiesState by viewModel.possibleCitiesState.collectAsState()
 
+                viewModel.loadPossibleCities("cairo")
                 Scaffold { padding ->
                     Box(
                         modifier = Modifier
@@ -72,6 +71,21 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                     ) {
                         MainScreen(navController)
+                        // test view model
+//                        when (val state = possibleCitiesState) {
+//                            is ResultState.Loading -> {
+//                                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+//                            }
+//
+//                            is ResultState.Success -> {
+//                                Text(text = state.data.get(0))
+//                            }
+//
+//                            is ResultState.Error -> {
+//                                Text(text = state.message)
+//                            }
+//                        }
+
                     }
                 }
             }

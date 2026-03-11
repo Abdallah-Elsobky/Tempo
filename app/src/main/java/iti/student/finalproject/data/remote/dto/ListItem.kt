@@ -2,7 +2,7 @@ package iti.student.finalproject.data.remote.dto
 
 data class ListItem(
 	val dt: Int,
-	val pop: Int,
+	val pop: Double,
 	val visibility: Int,
 	val dtTxt: String,
 	val weather: List<WeatherItem>,

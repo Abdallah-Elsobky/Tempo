@@ -3,6 +3,7 @@ package iti.student.finalproject.data.remote.api
 import iti.student.finalproject.data.remote.dto.CityDto
 import iti.student.finalproject.data.remote.dto.HourlyForecastResponseDto
 import iti.student.finalproject.data.remote.dto.WeatherResponseDto
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -21,7 +22,7 @@ interface WeatherApiService {
         @Query("lon") longitude: Double,
         @Query("lang") language: String = "en",
         @Query("units") units: String = "metric",
-        @Query("cnt") count: Int = 8
+        @Query("cnt") count: Int = 40
     ): HourlyForecastResponseDto
 
     @GET("geo/1.0/direct")
