@@ -8,16 +8,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import iti.student.finalproject.data.remote.api.RetrofitInstance
@@ -66,7 +63,7 @@ class MainActivity : ComponentActivity() {
                 viewModel.loadPossibleCities("cairo")
                 Scaffold { padding ->
                     Box(
-                        modifier = Modifier
+                        modifier = Modifier.background(Color(0xFFEAF2FF))
                             .padding(padding)
                             .fillMaxSize()
                     ) {
@@ -95,7 +92,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen(navController: NavHostController) {
-
     Box(modifier = Modifier.fillMaxSize()) {
         NavGraph(navController)
         BottomBar(navController = navController, modifier = Modifier.align(Alignment.BottomCenter))

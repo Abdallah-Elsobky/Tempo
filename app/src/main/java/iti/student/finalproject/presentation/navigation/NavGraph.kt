@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import iti.student.finalproject.presentation.screen.favorites.FavoritesScreen
+import iti.student.finalproject.presentation.screen.forecast.ForecastScreen
 import iti.student.finalproject.presentation.screen.home.HomeScreen
 import iti.student.finalproject.presentation.screen.notification.NotificationScreen
 import iti.student.finalproject.presentation.screen.settings.SettingsScreen
@@ -17,12 +18,20 @@ fun NavGraph(navController: NavHostController) {
         startDestination = Screen.Home.route
     ) {
 
-        composable(Screen.Home.route) { HomeScreen() }
+        composable(Screen.Home.route) {
+            HomeScreen(
+                onNavigateToForecast = {
+                    navController.navigate(Screen.Forecast.route)
+                }
+            )
+        }
 
         composable(Screen.Favorites.route) { FavoritesScreen() }
 
         composable(Screen.Notification.route) { NotificationScreen() }
 
         composable(Screen.Settings.route) { SettingsScreen() }
+
+        composable(Screen.Forecast.route) { ForecastScreen() }
     }
 }
