@@ -1,10 +1,11 @@
 package iti.student.finalproject
 
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,50 +20,60 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import androidx.room.Room
+import iti.student.finalproject.data.local.database.AppDatabase
+import iti.student.finalproject.data.local.datasource.WeatherLocalDataSourceImpl
 import iti.student.finalproject.data.remote.api.RetrofitInstance
 import iti.student.finalproject.data.remote.datasource.WeatherRemoteDataSourceImpl
 import iti.student.finalproject.data.repository.WeatherRepositoryImpl
 import iti.student.finalproject.presentation.components.BottomBar
 import iti.student.finalproject.presentation.navigation.NavGraph
+import iti.student.finalproject.presentation.screen.FavViewModel
+import iti.student.finalproject.presentation.screen.FavViewModelFactory
 import iti.student.finalproject.presentation.screen.WeatherViewModel
 import iti.student.finalproject.presentation.screen.WeatherViewModelFactory
 import iti.student.finalproject.ui.theme.FinalProjectTheme
-import iti.student.finalproject.utils.ResultState
-import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val factory = WeatherViewModelFactory(
-            WeatherRepositoryImpl(
-                WeatherRemoteDataSourceImpl(RetrofitInstance.api)
-            )
+
+        val db = Room.databaseBuilder(
+            this,
+            AppDatabase::class.java,
+            "app_database"
+        ).build()
+
+        val favDao = db.favDao()
+        val localDataSource = WeatherLocalDataSourceImpl(favDao)
+        val remoteDataSource = WeatherRemoteDataSourceImpl(RetrofitInstance.api)
+        val repository = WeatherRepositoryImpl(remoteDataSource, localDataSource)
+        val weatherFactory = WeatherViewModelFactory(
+            repository
         )
+        val favFactory = FavViewModelFactory(repository)
 
-        val viewModel: WeatherViewModel =
-            ViewModelProvider(this, factory)[WeatherViewModel::class.java]
+        val weatherViewModel: WeatherViewModel =
+            ViewModelProvider(this, weatherFactory)[WeatherViewModel::class.java]
 
-        val repo = WeatherRepositoryImpl(
-            WeatherRemoteDataSourceImpl(RetrofitInstance.api)
-        )
+        val favViewModel: FavViewModel =
+            ViewModelProvider(this, favFactory)[FavViewModel::class.java]
 
-//        lifecycleScope.launch {
-//            repo.getHourlyForecast(30.0, 31.0).collect {
-//                Log.d("loco", it.toString())
-//            }
-//        }
+
+
         setContent {
             FinalProjectTheme {
                 val navController = rememberNavController()
-                val weatherState by viewModel.weatherState.collectAsState()
-                val forecastState by viewModel.forecastState.collectAsState()
-                val cityNamesLocalizedState by viewModel.cityNamesLocalized.collectAsState()
-                val possibleCitiesState by viewModel.possibleCitiesState.collectAsState()
+                val weatherState by weatherViewModel.weatherState.collectAsState()
+                val forecastState by weatherViewModel.forecastState.collectAsState()
+                val cityNamesLocalizedState by weatherViewModel.cityNamesLocalized.collectAsState()
+                val possibleCitiesState by weatherViewModel.possibleCitiesState.collectAsState()
 
-                viewModel.loadPossibleCities("cairo")
+                weatherViewModel.loadPossibleCities("cairo")
                 Scaffold { padding ->
                     Box(
                         modifier = Modifier
@@ -70,7 +81,7 @@ class MainActivity : ComponentActivity() {
                             .padding(padding)
                             .fillMaxSize()
                     ) {
-                        MainScreen(navController, viewModel)
+                        MainScreen(navController, weatherViewModel, favViewModel)
                         // test view model
 //                        when (val state = possibleCitiesState) {
 //                            is ResultState.Loading -> {
@@ -94,9 +105,9 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(navController: NavHostController, viewModel: WeatherViewModel) {
+fun MainScreen(navController: NavHostController, weatherViewModel: WeatherViewModel, favViewModel: FavViewModel) {
     Box(modifier = Modifier.fillMaxSize()) {
-        NavGraph(navController,viewModel)
+        NavGraph(navController, weatherViewModel,favViewModel)
         BottomBar(
             navController = navController,
             modifier = Modifier.align(Alignment.BottomCenter)

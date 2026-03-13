@@ -1,6 +1,8 @@
 package iti.student.finalproject.presentation.screen.home
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -50,6 +52,7 @@ import iti.student.finalproject.ui.theme.*
 import iti.student.finalproject.utils.ResultState
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen(viewModel: WeatherViewModel, onNavigateToForecast: () -> Unit = {}) {
 
