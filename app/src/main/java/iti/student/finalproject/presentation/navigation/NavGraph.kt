@@ -5,7 +5,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import iti.student.finalproject.presentation.screen.favorites.FavoritesScreen
-import iti.student.finalproject.presentation.screen.forecast.ForecastScreen
+import iti.student.finalproject.presentation.screen.favorites.map.NewFavScreen
+import iti.student.finalproject.presentation.screen.home.forecast.ForecastScreen
 import iti.student.finalproject.presentation.screen.home.HomeScreen
 import iti.student.finalproject.presentation.screen.notification.NotificationScreen
 import iti.student.finalproject.presentation.screen.settings.SettingsScreen
@@ -26,12 +27,32 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
-        composable(Screen.Favorites.route) { FavoritesScreen() }
+        composable(Screen.Favorites.route) {
+            FavoritesScreen(
+                onAddNewCity = {
+                    navController.navigate(Screen.NewFav.route)
+                }
+            )
+        }
 
         composable(Screen.Notification.route) { NotificationScreen() }
 
         composable(Screen.Settings.route) { SettingsScreen() }
 
-        composable(Screen.Forecast.route) { ForecastScreen() }
+        composable(Screen.Forecast.route) {
+            ForecastScreen(
+                onBackClick = {
+                    navController.popBackStack(Screen.Home.route, false)
+                }
+            )
+        }
+
+        composable(Screen.NewFav.route) {
+            NewFavScreen(
+                onBackClick = {
+                    navController.popBackStack(Screen.Favorites.route, false)
+                }
+            )
+        }
     }
 }

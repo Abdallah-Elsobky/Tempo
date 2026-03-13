@@ -1,5 +1,6 @@
 package iti.student.finalproject.presentation.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,43 +38,49 @@ fun BottomBar(navController: NavController, modifier: Modifier = Modifier) {
         BottomNavItem("Settings", Screen.Settings.route, painterResource(R.drawable.ic_setting))
     )
 
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(100.dp)
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        shape = RoundedCornerShape(34.dp),
-        shadowElevation = 20.dp,
-        color = Color.White.copy(alpha = 0.97f)
-    ) {
-
-        val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceAround,
-            modifier = Modifier.fillMaxSize()
+    val mainRoutes = listOf(
+        Screen.Home.route,
+        Screen.Favorites.route,
+        Screen.Notification.route,
+        Screen.Settings.route
+    )
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    AnimatedVisibility(currentRoute in mainRoutes, modifier) {
+        Surface(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            shape = RoundedCornerShape(34.dp),
+            shadowElevation = 20.dp,
+            color = Color.White.copy(alpha = 0.97f)
         ) {
-            items.forEach { item ->
-                NavigationBarItem(
-                    selected = currentRoute == item.route,
-                    onClick = {
-                        navController.navigate(item.route) {
-                            popUpTo(navController.graph.startDestinationId)
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    },
-                    icon = { Icon(item.icon, contentDescription = item.title) },
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceAround,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items.forEach { item ->
+                    NavigationBarItem(
+                        selected = currentRoute == item.route,
+                        onClick = {
+                            navController.navigate(item.route) {
+                                popUpTo(navController.graph.startDestinationId)
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        icon = { Icon(item.icon, contentDescription = item.title) },
 //                    label = { Text(item.title) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = colorResource(R.color.blue),
-                        unselectedIconColor = Color.Gray,
-                        selectedTextColor = colorResource(R.color.blue),
-                        unselectedTextColor = Color.Gray,
-                        indicatorColor = Color.Transparent
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = colorResource(R.color.blue),
+                            unselectedIconColor = Color.Gray,
+                            selectedTextColor = colorResource(R.color.blue),
+                            unselectedTextColor = Color.Gray,
+                            indicatorColor = Color.Transparent
+                        )
                     )
-                )
+                }
             }
         }
     }
