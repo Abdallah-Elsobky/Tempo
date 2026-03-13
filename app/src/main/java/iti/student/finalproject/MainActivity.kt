@@ -65,11 +65,12 @@ class MainActivity : ComponentActivity() {
                 viewModel.loadPossibleCities("cairo")
                 Scaffold { padding ->
                     Box(
-                        modifier = Modifier.background(Color(0xFFEAF2FF))
+                        modifier = Modifier
+                            .background(Color(0xFFEAF2FF))
                             .padding(padding)
                             .fillMaxSize()
                     ) {
-                        MainScreen(navController)
+                        MainScreen(navController, viewModel)
                         // test view model
 //                        when (val state = possibleCitiesState) {
 //                            is ResultState.Loading -> {
@@ -93,9 +94,12 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(navController: NavHostController) {
+fun MainScreen(navController: NavHostController, viewModel: WeatherViewModel) {
     Box(modifier = Modifier.fillMaxSize()) {
-        NavGraph(navController)
-        BottomBar(navController = navController, modifier = Modifier.align(Alignment.BottomCenter))
+        NavGraph(navController,viewModel)
+        BottomBar(
+            navController = navController,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }

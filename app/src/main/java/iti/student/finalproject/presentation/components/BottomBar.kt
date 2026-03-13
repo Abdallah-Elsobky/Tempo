@@ -23,6 +23,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import iti.student.finalproject.R
 import iti.student.finalproject.presentation.navigation.BottomNavItem
 import iti.student.finalproject.presentation.navigation.Screen
+import iti.student.finalproject.presentation.screen.WeatherViewModel
 
 @Composable
 fun BottomBar(navController: NavController, modifier: Modifier = Modifier) {

@@ -1,5 +1,7 @@
 package iti.student.finalproject.data.remote.dto
 
 data class Sys(
-	val pod: String
+    val country: String,
+    val sunrise: Int,
+    val sunset: Int,
 )

@@ -18,11 +18,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,58 +35,72 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import iti.student.finalproject.R
+import iti.student.finalproject.domain.model.ForecastModel
+import iti.student.finalproject.presentation.screen.WeatherViewModel
 import iti.student.finalproject.ui.theme.*
+import iti.student.finalproject.utils.NumberUtils.roundTo
+import iti.student.finalproject.utils.ResultState
 
-private data class DailyForecast(
-    val dayName: String,
-    val date: String,
-    val condition: String,
-    val iconRes: Int,
-    val lowTemp: Int,
-    val highTemp: Int,
-    val isToday: Boolean = false
-)
-
-private data class WeatherInfoCard(
+data class WeatherInfoCard(
     val label: String,
-    val value: String,
+    var value: String,
     val description: String,
     val iconRes: Int,
     val iconTint: Color
 )
 
 @Composable
-fun ForecastScreen(onBackClick: () -> Unit) {
-    val dailyForecasts = listOf(
-        DailyForecast(
-            "Today",
-            "Mar 3",
-            "Partly Cloudy",
-            R.drawable.ic_cloud,
-            65,
-            75,
-            isToday = true
-        ),
-        DailyForecast("Wed", "Mar 4", "Sunny", R.drawable.ic_sun, 64, 72),
-        DailyForecast("Thu", "Mar 5", "Rainy", R.drawable.ic_drop_water, 62, 70),
-        DailyForecast("Fri", "Mar 6", "Stormy", R.drawable.ic_wind, 62, 69),
-        DailyForecast("Sat", "Mar 7", "Sunny", R.drawable.ic_sun, 64, 71),
-    )
-
+fun ForecastScreen(viewModel: WeatherViewModel, onBackClick: () -> Unit) {
     val infoCards = listOf(
-        WeatherInfoCard("VISIBILITY", "10 mi", "Good visibility", R.drawable.ic_sun, WeatherOrange),
-        WeatherInfoCard(
-            "PRESSURE",
-            "1015 hPa",
-            "Falling slightly",
-            R.drawable.ic_pressure,
-            WeatherPurple
-        ),
-        WeatherInfoCard("UV INDEX", "4", "Moderate", R.drawable.ic_sun, WeatherYellow),
-        WeatherInfoCard("DEW POINT", "56°", "Comfortable", R.drawable.ic_drop_water, WeatherTeal),
+        WeatherInfoCard("WIND", "10 mi", "Good visibility", R.drawable.ic_wind, WeatherAccentBlue),
+        WeatherInfoCard("HUMIDITY", "4", "Moderate", R.drawable.ic_drop_water, WeatherTeal),
+        WeatherInfoCard("CLOUD", "56°", "Comfortable", R.drawable.ic_cloud, WeatherPrimaryMedium),
+        WeatherInfoCard("PRESSURE","1015 hPa","Falling slightly", R.drawable.ic_pressure, WeatherPurple),
     )
 
+    val forecastState by viewModel.forecastState.collectAsState()
+
+    when (forecastState) {
+        is ResultState.Error -> {
+            Box(Modifier.fillMaxSize()) {
+                CircularProgressIndicator(Modifier.align(Alignment.Center))
+            }
+            Box(Modifier.fillMaxSize()) {
+                Text((forecastState as ResultState.Error).message)
+            }
+        }
+
+        is ResultState.Loading -> {
+            Box(Modifier.fillMaxSize()) {
+                CircularProgressIndicator(Modifier.align(Alignment.Center))
+            }
+        }
+
+        is ResultState.Success<*> -> {
+            ForecastContent(
+                forecastState as ResultState.Success<List<ForecastModel>>,
+                infoCards,
+                onBackClick
+            )
+        }
+    }
+}
+
+
+@Composable
+fun ForecastContent(
+    forecastState: ResultState.Success<List<ForecastModel>>,
+    infoCards: List<WeatherInfoCard>,
+    onBackClick: () -> Unit
+) {
+
+    val forecasts = forecastState.data.filter { it.dayTime == "12 AM" }
+    infoCards.get(0).value = "${roundTo(forecasts.get(0).windSpeed, 1)} km/h"
+    infoCards.get(1).value = "${forecasts.get(0).humidity} %"
+    infoCards.get(2).value = "${forecasts.get(0).clouds} %"
+    infoCards.get(3).value = "${forecasts.get(0).pressure} hPa"
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -109,7 +126,7 @@ fun ForecastScreen(onBackClick: () -> Unit) {
                         .size(34.dp)
                         .clip(CircleShape)
                         .background(WeatherDivider)
-                        .clickable(true){
+                        .clickable(true) {
                             onBackClick.invoke()
                         }
                 ) {
@@ -124,7 +141,7 @@ fun ForecastScreen(onBackClick: () -> Unit) {
                 }
                 Text(
                     modifier = Modifier.weight(2f),
-                    text = "7-Day Forecast",
+                    text = "5-Day Forecast",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = WeatherPrimaryDark
@@ -140,9 +157,9 @@ fun ForecastScreen(onBackClick: () -> Unit) {
                 shadowElevation = 2.dp
             ) {
                 Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                    dailyForecasts.forEachIndexed { index, forecast ->
-                        DailyForecastRow(forecast)
-                        if (index < dailyForecasts.lastIndex) {
+                    forecasts.forEachIndexed { index, forecast ->
+                        DailyForecastRow(index, forecast)
+                        if (index < forecasts.lastIndex) {
                             HorizontalDivider(
                                 color = WeatherDivider,
                                 thickness = 0.5.dp,
@@ -181,7 +198,7 @@ fun ForecastScreen(onBackClick: () -> Unit) {
 }
 
 @Composable
-private fun DailyForecastRow(forecast: DailyForecast) {
+private fun DailyForecastRow(index: Int, forecast: ForecastModel) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -192,11 +209,11 @@ private fun DailyForecastRow(forecast: DailyForecast) {
             Text(
                 text = forecast.dayName,
                 fontSize = 14.sp,
-                fontWeight = if (forecast.isToday) FontWeight.Bold else FontWeight.SemiBold,
+                fontWeight = if (index == 0) FontWeight.Bold else FontWeight.SemiBold,
                 color = WeatherPrimaryDark
             )
             Text(
-                text = forecast.date,
+                text = forecast.dayDate,
                 fontSize = 11.sp,
                 color = WeatherSecondaryText
             )
@@ -204,22 +221,16 @@ private fun DailyForecastRow(forecast: DailyForecast) {
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        Icon(
-            painter = painterResource(forecast.iconRes),
-            contentDescription = forecast.condition,
+        AsyncImage(
+            model = forecast.iconUrl,
+            contentDescription = forecast.description,
             modifier = Modifier.size(28.dp),
-            tint = when (forecast.iconRes) {
-                R.drawable.ic_sun -> WeatherYellow
-                R.drawable.ic_drop_water -> WeatherAccentBlue
-                R.drawable.ic_wind -> WeatherAccentBlue
-                else -> WeatherSecondaryText
-            }
         )
 
         Spacer(modifier = Modifier.width(8.dp))
 
         Text(
-            text = forecast.condition,
+            text = forecast.description,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
             color = WeatherSecondaryText,
@@ -227,7 +238,7 @@ private fun DailyForecastRow(forecast: DailyForecast) {
         )
 
         Text(
-            text = "${forecast.lowTemp}°",
+            text = "${forecast.minTemperature}°",
             fontSize = 13.sp,
             fontWeight = FontWeight.Medium,
             color = WeatherSecondaryText
@@ -236,8 +247,8 @@ private fun DailyForecastRow(forecast: DailyForecast) {
         Spacer(modifier = Modifier.width(8.dp))
 
         TemperatureBar(
-            low = forecast.lowTemp,
-            high = forecast.highTemp,
+            low = forecast.minTemperature.toInt(),
+            high = forecast.maxTemperature.toInt(),
             modifier = Modifier
                 .weight(1f)
                 .height(5.dp)
@@ -246,7 +257,7 @@ private fun DailyForecastRow(forecast: DailyForecast) {
         Spacer(modifier = Modifier.width(8.dp))
 
         Text(
-            text = "${forecast.highTemp}°",
+            text = "${forecast.maxTemperature}°",
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
             color = WeatherPrimaryDark
@@ -341,14 +352,6 @@ private fun InfoCard(
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 color = WeatherPrimaryDark
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = card.description,
-                fontSize = 12.sp,
-                color = WeatherSecondaryText
             )
         }
     }

@@ -1,5 +1,6 @@
 package iti.student.finalproject.presentation.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,73 +23,67 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import iti.student.finalproject.R
+import iti.student.finalproject.domain.model.ForecastModel
 import iti.student.finalproject.ui.theme.*
 
-data class HourlyItem(
-    val time: String,
-    val temp: String,
-    val iconRes: Int,
-    val isActive: Boolean = false
-)
-
 @Composable
-fun HourlyForecast() {
-    val items = listOf(
-        HourlyItem("Now", "29°", R.drawable.ic_cloud, isActive = true),
-        HourlyItem("5pm", "28°", R.drawable.ic_drop_water),
-        HourlyItem("6pm", "28°", R.drawable.ic_cloud),
-        HourlyItem("7pm", "27°", R.drawable.ic_wind),
-        HourlyItem("8pm", "26°", R.drawable.ic_cloud),
-        HourlyItem("9pm", "25°", R.drawable.ic_drop_water),
-    )
-
+fun HourlyForecast(forecast: List<ForecastModel>) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         contentPadding = PaddingValues(horizontal = 4.dp)
     ) {
-        itemsIndexed(items) { _, item ->
-            HourlyCard(item)
+        itemsIndexed(forecast.take(8)) { index, item ->
+            HourlyCard(item, index)
         }
     }
 }
 
 @Composable
-private fun HourlyCard(item: HourlyItem) {
-    val backgroundColor = if (item.isActive) WeatherActiveCard else WeatherSurfaceCard
-    val contentColor = if (item.isActive) Color.White else WeatherPrimaryDark
-    val secondaryColor = if (item.isActive) Color.White.copy(alpha = 0.8f) else WeatherSecondaryText
+private fun HourlyCard(item: ForecastModel, index: Int) {
+    val backgroundColor = if (index == 0) WeatherActiveCard else WeatherSurfaceCard
+    val contentColor = if (index == 0) Color.White else WeatherPrimaryDark
+    val secondaryColor = if (index == 0) Color.White.copy(alpha = 0.8f) else WeatherSecondaryText
 
     Surface(
-        modifier = Modifier.width(76.dp).height(160.dp),
+        modifier = Modifier
+            .width(76.dp)
+            .height(160.dp),
         shape = RoundedCornerShape(20.dp),
         color = backgroundColor,
-        shadowElevation = if (item.isActive) 8.dp else 0.dp
+        shadowElevation = if (index == 0) 8.dp else 0.dp
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(vertical = 16.dp, horizontal = 12.dp)
         ) {
             Text(
-                text = item.time,
+                text = if (index == 0) "Now" else item.dayName,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = secondaryColor
+            )
+            Text(
+                text = item.dayTime,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 color = secondaryColor
             )
 
-            Spacer(modifier = Modifier.height(25.dp))
-
-            Icon(
-                painter = painterResource(item.iconRes),
+            Spacer(modifier = Modifier.height(15.dp))
+            AsyncImage(
+                model = item.iconUrl,
                 contentDescription = null,
                 modifier = Modifier.size(28.dp),
-                tint = if (item.isActive) Color.White else WeatherActiveCard
+                placeholder = painterResource(R.drawable.ic_cloud),
+                error = painterResource(R.drawable.ic_location)
             )
 
-            Spacer(modifier = Modifier.height(25.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
             Text(
-                text = item.temp,
+                text = "${item.temperature}°",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = contentColor

@@ -3,9 +3,11 @@ package iti.student.finalproject.presentation.screen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import iti.student.finalproject.data.remote.dto.CityDto
-import iti.student.finalproject.data.remote.dto.HourlyForecastResponseDto
-import iti.student.finalproject.data.remote.dto.WeatherResponseDto
+import iti.student.finalproject.domain.mapper.ResultStateMapper
+import iti.student.finalproject.domain.mapper.WeatherMapper.weatherToDomain
+import iti.student.finalproject.domain.mapper.WeatherMapper.forecastToDomain
+import iti.student.finalproject.domain.model.ForecastModel
+import iti.student.finalproject.domain.model.WeatherModel
 import iti.student.finalproject.domain.repository.WeatherRepository
 import iti.student.finalproject.utils.ResultState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,16 +19,16 @@ class WeatherViewModel(
 ) : ViewModel() {
 
     init {
-//        loadWeather(30.0, 31.0)
-//        loadForecast(30.0, 31.0)
+        loadWeather(30.0444, 31.2357)
+        loadForecast(30.0444, 31.2357)
     }
 
     private val _weatherState =
-        MutableStateFlow<ResultState<WeatherResponseDto>>(ResultState.Loading)
+        MutableStateFlow<ResultState<WeatherModel>>(ResultState.Loading)
     val weatherState = _weatherState.asStateFlow()
 
     private val _forecastState =
-        MutableStateFlow<ResultState<HourlyForecastResponseDto>>(ResultState.Loading)
+        MutableStateFlow<ResultState<List<ForecastModel>>>(ResultState.Loading)
     val forecastState = _forecastState.asStateFlow()
 
 
@@ -42,7 +44,9 @@ class WeatherViewModel(
     fun loadWeather(lat: Double, lon: Double) {
         viewModelScope.launch {
             repository.getWeather(lat, lon).collect {
-                _weatherState.value = it
+                _weatherState.value =
+                    ResultStateMapper(::weatherToDomain)
+                        .map(it)
             }
         }
     }
@@ -50,7 +54,8 @@ class WeatherViewModel(
     fun loadForecast(lat: Double, lon: Double) {
         viewModelScope.launch {
             repository.getHourlyForecast(lat, lon).collect {
-                _forecastState.value = it
+                _forecastState.value = ResultStateMapper(::forecastToDomain)
+                    .map(it)
             }
         }
     }
