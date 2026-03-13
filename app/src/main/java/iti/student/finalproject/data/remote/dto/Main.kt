@@ -1,13 +1,17 @@
 package iti.student.finalproject.data.remote.dto
 
+import com.google.gson.annotations.SerializedName
+
 data class Main(
-	val temp: Any,
-	val tempMin: Any,
+	val temp: Float,
+	@SerializedName("temp_min")
+	val tempMin: Float,
+	@SerializedName("temp_max")
+	val tempMax: Float,
 	val grndLevel: Int,
-	val tempKf: Any,
+	val tempKf: Float,
 	val humidity: Int,
 	val pressure: Int,
 	val seaLevel: Int,
-	val feelsLike: Any,
-	val tempMax: Any
+	val feelsLike: Float,
 )

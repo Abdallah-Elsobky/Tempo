@@ -22,35 +22,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import iti.student.finalproject.R
-import iti.student.finalproject.ui.theme.WeatherAccentBlue
-import iti.student.finalproject.ui.theme.WeatherOrange
-import iti.student.finalproject.ui.theme.WeatherPrimaryDark
-import iti.student.finalproject.ui.theme.WeatherPurple
-import iti.student.finalproject.ui.theme.WeatherSecondaryText
+import iti.student.finalproject.domain.model.WeatherModel
+import iti.student.finalproject.ui.theme.*
 
 @Composable
-fun WeatherDetails() {
+fun WeatherDetails(weather: WeatherModel) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier.fillMaxWidth()
     ) {
         WeatherDetailItem(
-            value = "11km/hr",
+            value = "${weather.windSpeed} km/h",
             iconRes = R.drawable.ic_wind,
             iconTint = WeatherAccentBlue
         )
         WeatherDetailItem(
-            value = "02%",
+            value = "${weather.clouds}%",
+            iconRes = R.drawable.ic_cloud,
+            iconTint = WeatherPrimaryMedium
+        )
+        WeatherDetailItem(
+            value = "${weather.humidity}%",
             iconRes = R.drawable.ic_drop_water,
-            iconTint = WeatherAccentBlue
+            iconTint = WeatherAccentBlueLight
         )
         WeatherDetailItem(
-            value = "8hr",
-            iconRes = R.drawable.ic_sun,
-            iconTint = WeatherOrange
-        )
-        WeatherDetailItem(
-            value = "1015 hPa",
+            value = "${weather.pressure} hPa",
             iconRes = R.drawable.ic_pressure,
             iconTint = WeatherPurple
         )

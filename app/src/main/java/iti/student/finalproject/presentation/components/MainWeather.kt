@@ -1,5 +1,6 @@
 package iti.student.finalproject.presentation.components
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,18 +19,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
+import coil3.compose.rememberAsyncImagePainter
 import iti.student.finalproject.R
+import iti.student.finalproject.domain.model.WeatherModel
 import iti.student.finalproject.ui.theme.*
 
 @Composable
-fun MainWeather() {
+fun MainWeather(weather: WeatherModel) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            painter = painterResource(R.drawable.ic_cloud),
+//        Log.d("loco", weather.iconUrl)
+        AsyncImage(
+            model = weather.iconUrl,
             contentDescription = "Weather icon",
-            modifier = Modifier.size(160.dp)
+            modifier = Modifier.size(160.dp),
+            placeholder = painterResource(R.drawable.ic_cloud),
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -43,7 +49,7 @@ fun MainWeather() {
                         color = WeatherPrimaryDark
                     )
                 ) {
-                    append("29")
+                    append(weather.temp.toString())
                 }
                 withStyle(
                     SpanStyle(
@@ -60,7 +66,7 @@ fun MainWeather() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Expect high rain today.",
+            text = weather.description,
             fontSize = 15.sp,
             fontWeight = FontWeight.Normal,
             color = WeatherPrimaryMedium,
