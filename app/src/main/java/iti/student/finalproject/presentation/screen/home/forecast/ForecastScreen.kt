@@ -1,7 +1,8 @@
-package iti.student.finalproject.presentation.screen.forecast
+package iti.student.finalproject.presentation.screen.home.forecast
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,9 +54,17 @@ private data class WeatherInfoCard(
 )
 
 @Composable
-fun ForecastScreen() {
+fun ForecastScreen(onBackClick: () -> Unit) {
     val dailyForecasts = listOf(
-        DailyForecast("Today", "Mar 3", "Partly Cloudy", R.drawable.ic_cloud, 65, 75, isToday = true),
+        DailyForecast(
+            "Today",
+            "Mar 3",
+            "Partly Cloudy",
+            R.drawable.ic_cloud,
+            65,
+            75,
+            isToday = true
+        ),
         DailyForecast("Wed", "Mar 4", "Sunny", R.drawable.ic_sun, 64, 72),
         DailyForecast("Thu", "Mar 5", "Rainy", R.drawable.ic_drop_water, 62, 70),
         DailyForecast("Fri", "Mar 6", "Stormy", R.drawable.ic_wind, 62, 69),
@@ -64,7 +73,13 @@ fun ForecastScreen() {
 
     val infoCards = listOf(
         WeatherInfoCard("VISIBILITY", "10 mi", "Good visibility", R.drawable.ic_sun, WeatherOrange),
-        WeatherInfoCard("PRESSURE", "1015 hPa", "Falling slightly", R.drawable.ic_pressure, WeatherPurple),
+        WeatherInfoCard(
+            "PRESSURE",
+            "1015 hPa",
+            "Falling slightly",
+            R.drawable.ic_pressure,
+            WeatherPurple
+        ),
         WeatherInfoCard("UV INDEX", "4", "Moderate", R.drawable.ic_sun, WeatherYellow),
         WeatherInfoCard("DEW POINT", "56°", "Comfortable", R.drawable.ic_drop_water, WeatherTeal),
     )
@@ -86,14 +101,32 @@ fun ForecastScreen() {
                 .padding(top = 24.dp, bottom = 100.dp)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(80.dp)
             ) {
+                Box(
+                    Modifier
+                        .size(34.dp)
+                        .clip(CircleShape)
+                        .background(WeatherDivider)
+                        .clickable(true){
+                            onBackClick.invoke()
+                        }
+                ) {
+                    Icon(
+                        painterResource(R.drawable.ic_back),
+                        contentDescription = null,
+                        tint = WeatherPrimaryDark,
+                        modifier = Modifier
+                            .size(19.dp)
+                            .align(Alignment.Center)
+                    )
+                }
                 Text(
+                    modifier = Modifier.weight(2f),
                     text = "7-Day Forecast",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
                     color = WeatherPrimaryDark
                 )
             }
