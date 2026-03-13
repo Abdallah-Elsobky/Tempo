@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import iti.student.finalproject.presentation.screen.FavViewModel
 import iti.student.finalproject.presentation.screen.WeatherViewModel
 import iti.student.finalproject.presentation.screen.favorites.FavoritesScreen
 import iti.student.finalproject.presentation.screen.favorites.map.NewFavScreen
@@ -13,7 +14,11 @@ import iti.student.finalproject.presentation.screen.notification.NotificationScr
 import iti.student.finalproject.presentation.screen.settings.SettingsScreen
 
 @Composable
-fun NavGraph(navController: NavHostController, viewModel: WeatherViewModel) {
+fun NavGraph(
+    navController: NavHostController,
+    weatherViewModel: WeatherViewModel,
+    favViewModel: FavViewModel
+) {
 
     NavHost(
         navController = navController,
@@ -22,7 +27,7 @@ fun NavGraph(navController: NavHostController, viewModel: WeatherViewModel) {
 
         composable(Screen.Home.route) {
             HomeScreen(
-                viewModel,
+                weatherViewModel,
                 onNavigateToForecast = {
                     navController.navigate(Screen.Forecast.route)
                 }
@@ -31,6 +36,7 @@ fun NavGraph(navController: NavHostController, viewModel: WeatherViewModel) {
 
         composable(Screen.Favorites.route) {
             FavoritesScreen(
+                favViewModel,
                 onAddNewCity = {
                     navController.navigate(Screen.NewFav.route)
                 }
@@ -43,7 +49,7 @@ fun NavGraph(navController: NavHostController, viewModel: WeatherViewModel) {
 
         composable(Screen.Forecast.route) {
             ForecastScreen(
-                viewModel,
+                weatherViewModel,
                 onBackClick = {
                     navController.popBackStack(Screen.Home.route, false)
                 }

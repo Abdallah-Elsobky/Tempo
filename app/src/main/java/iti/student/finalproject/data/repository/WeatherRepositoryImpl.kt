@@ -1,6 +1,8 @@
 package iti.student.finalproject.data.repository
 
 import android.util.Log
+import iti.student.finalproject.data.local.datasource.WeatherLocalDataSource
+import iti.student.finalproject.data.local.entity.FavLocationEntity
 import iti.student.finalproject.data.remote.datasource.WeatherRemoteDataSource
 import iti.student.finalproject.data.remote.dto.HourlyForecastResponseDto
 import iti.student.finalproject.data.remote.dto.WeatherResponseDto
@@ -12,7 +14,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 
 class WeatherRepositoryImpl(
-    private val remoteDataSource: WeatherRemoteDataSource
+    private val remoteDataSource: WeatherRemoteDataSource,
+    private val localDataSource: WeatherLocalDataSource,
 ) : WeatherRepository {
     override suspend fun getWeather(
         lat: Double,
@@ -65,4 +68,16 @@ class WeatherRepositoryImpl(
             emit(ResultState.Error(e.message ?: "Unknown error"))
         }
     }.flowOn(Dispatchers.IO)
+
+    override fun getFavorites(): Flow<List<FavLocationEntity>> {
+        return localDataSource.getAllFav()
+    }
+
+    override suspend fun insertFavorite(location: FavLocationEntity) {
+        localDataSource.insertNewFav(location)
+    }
+
+    override suspend fun deleteFavorite(location: FavLocationEntity) {
+        localDataSource.deleteFavLocation(location)
+    }
 }
