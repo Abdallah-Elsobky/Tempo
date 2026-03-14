@@ -10,4 +10,6 @@ data class WeatherModel(
     val pressure: Int,
     val clouds: Int,
     val iconUrl: String,
+    val lon: Float,
+    val lat:Float
 )

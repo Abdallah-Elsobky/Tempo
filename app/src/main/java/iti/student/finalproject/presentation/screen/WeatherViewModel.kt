@@ -23,10 +23,6 @@ class WeatherViewModel(
     private val repository: WeatherRepository
 ) : ViewModel() {
 
-    init {
-        loadWeather(30.0444, 31.2357)
-        loadForecast(30.0444, 31.2357)
-    }
 
     private val _weatherState =
         MutableStateFlow<ResultState<WeatherModel>>(ResultState.Loading)

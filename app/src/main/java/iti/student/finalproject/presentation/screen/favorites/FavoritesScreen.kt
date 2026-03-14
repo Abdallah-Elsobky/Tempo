@@ -61,10 +61,11 @@ import iti.student.finalproject.presentation.utils.getTemperatureColor
 import iti.student.finalproject.ui.theme.*
 
 @Composable
-fun FavoritesScreen(favViewModel: FavViewModel, onAddNewCity: () -> Unit = {}) {
-
-    //TODO: Complete navigate to forecast screen with lon,lat
-
+fun FavoritesScreen(
+    favViewModel: FavViewModel,
+    onAddNewCity: () -> Unit = {},
+    onFavClick: (favLocation: FavLocationModel) -> Unit = {}
+) {
     val favState by favViewModel.favorites.collectAsState()
 
     Box(
@@ -97,7 +98,7 @@ fun FavoritesScreen(favViewModel: FavViewModel, onAddNewCity: () -> Unit = {}) {
                         favViewModel.deleteFavorite(modelToEntity(it))
                     },
                     onNavigateToForecast = {
-
+                        onFavClick.invoke(favLocation)
                     })
             }
         }
@@ -114,8 +115,8 @@ fun FavoritesScreen(favViewModel: FavViewModel, onAddNewCity: () -> Unit = {}) {
                         "egypt",
                         30f,
                         "https://maps.gstatic.com/weather/v1/snow_showers.svg",
-                        30.0,
-                        31.0
+                        34.0,
+                        35.0
                     )
                 )
                 favViewModel.insertFavorite(
@@ -124,8 +125,8 @@ fun FavoritesScreen(favViewModel: FavViewModel, onAddNewCity: () -> Unit = {}) {
                         "egypt",
                         20f,
                         "https://maps.gstatic.com/weather/v1/cloudy.svg",
-                        30.0,
-                        31.0
+                        32.0,
+                        21.0
                     )
                 )
                 favViewModel.insertFavorite(
@@ -134,8 +135,8 @@ fun FavoritesScreen(favViewModel: FavViewModel, onAddNewCity: () -> Unit = {}) {
                         "egypt",
                         40f,
                         "https://maps.gstatic.com/weather/v1/clear.svg",
-                        30.0,
-                        31.0
+                        50.0,
+                        21.0
                     )
                 )
                 favViewModel.insertFavorite(
@@ -144,8 +145,8 @@ fun FavoritesScreen(favViewModel: FavViewModel, onAddNewCity: () -> Unit = {}) {
                         "egypt",
                         10f,
                         "https://maps.gstatic.com/weather/v1/showers.svg",
-                        30.0,
-                        31.0
+                        40.0,
+                        35.0
                     )
                 )
                 onAddNewCity.invoke()

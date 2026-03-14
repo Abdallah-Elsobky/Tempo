@@ -72,6 +72,8 @@ dependencies {
 
     ksp("androidx.room:room-compiler:2.8.4")
 
+    implementation("org.osmdroid:osmdroid-android:6.1.16")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

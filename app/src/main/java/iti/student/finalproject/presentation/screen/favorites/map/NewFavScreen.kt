@@ -32,6 +32,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -41,27 +43,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.compose.NavHost
 import iti.student.finalproject.R
 import iti.student.finalproject.presentation.utils.getTemperatureColor
 import iti.student.finalproject.ui.theme.*
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 
 @Composable
 fun NewFavScreen(onBackClick: () -> Unit = {}) {
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(WeatherGradientTop, WeatherGradientBottom)
-                )
-            )
+            .fillMaxWidth()
     ) {
-        MapView()
+        StreetMapView(30.0, 31.0)
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color.Black.copy(0.3f), WeatherGradientBottom.copy(0.1f))
+                    )
+                )
                 .padding(horizontal = 24.dp)
                 .padding(top = 24.dp, bottom = 100.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
@@ -111,10 +116,9 @@ fun SearchBar(modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 70.dp)
-            .height(55.dp),
+            .height(55.dp).background(Color.Transparent),
         shape = RoundedCornerShape(34.dp),
         shadowElevation = 50.dp,
-        color = WeatherSurfaceCard.copy(.8f)
     ) {
         var text by remember { mutableStateOf("") }
 
@@ -124,8 +128,10 @@ fun SearchBar(modifier: Modifier = Modifier) {
             placeholder = { Text("Search by name") },
             leadingIcon = { Icon(painterResource(R.drawable.ic_search), null) },
             colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = WeatherAccentBlue,
-                unfocusedIndicatorColor = WeatherDivider
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = WeatherDivider,
+                unfocusedContainerColor = WeatherDivider,
+                focusedContainerColor = WeatherSurfaceCard
             ),
             shape = RoundedCornerShape(34.dp)
         )
@@ -134,25 +140,37 @@ fun SearchBar(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun MapView() {
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(WeatherYellow),
-    ) {
-        Column(
-            Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                "Map Here",
-                fontWeight = FontWeight.Bold,
-                color = WeatherSurfaceCard,
-                fontSize = 50.sp
+fun StreetMapView(
+    lat: Double,
+    lon: Double
+) {
+    val context = LocalContext.current
+
+    AndroidView(
+        factory = {
+            val mapView = MapView(context)
+
+            mapView.setMultiTouchControls(true)
+
+            val mapController = mapView.controller
+            mapController.setZoom(14.0)
+            mapView.zoomController.setVisibility(
+                org.osmdroid.views.CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT
             )
-        }
-    }
+            val startPoint = GeoPoint(lat, lon)
+            mapController.setCenter(startPoint)
+
+            val marker = Marker(mapView)
+            marker.position = startPoint
+            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            marker.title = "Selected Location"
+
+            mapView.overlays.add(marker)
+
+            mapView
+        },
+        modifier = Modifier.fillMaxSize()
+    )
 }
 
 @Composable
