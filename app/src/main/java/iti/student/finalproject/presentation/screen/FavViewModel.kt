@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import iti.student.finalproject.data.local.entity.FavLocationEntity
 import iti.student.finalproject.domain.mapper.FavLocationMapper.entityToModel
+import iti.student.finalproject.domain.mapper.FavLocationMapper.modelToEntity
 import iti.student.finalproject.domain.model.FavLocationModel
 import iti.student.finalproject.domain.repository.WeatherRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,9 +30,9 @@ class FavViewModel(
         }
     }
 
-    fun insertFavorite(location: FavLocationEntity) {
+    fun insertFavorite(location: FavLocationModel) {
         viewModelScope.launch {
-            repository.insertFavorite(location)
+            repository.insertFavorite(modelToEntity(location))
         }
     }
 

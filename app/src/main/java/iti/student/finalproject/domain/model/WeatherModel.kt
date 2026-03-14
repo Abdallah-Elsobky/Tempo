@@ -1,8 +1,8 @@
 package iti.student.finalproject.domain.model
 
 data class WeatherModel(
-    val city: String,
-    val country: String,
+    val city: String? = "Unknown",
+    val country: String? = "Unknown",
     val temp: Float,
     val description: String,
     val windSpeed: Float,
@@ -11,5 +11,5 @@ data class WeatherModel(
     val clouds: Int,
     val iconUrl: String,
     val lon: Float,
-    val lat:Float
+    val lat: Float
 )

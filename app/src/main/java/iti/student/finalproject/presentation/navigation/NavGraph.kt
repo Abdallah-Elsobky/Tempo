@@ -78,6 +78,8 @@ fun NavGraph(
 
         composable(Screen.NewFav.route) {
             NewFavScreen(
+                weatherViewModel,
+                favViewModel,
                 onBackClick = {
                     navController.popBackStack(Screen.Favorites.route, false)
                 }
