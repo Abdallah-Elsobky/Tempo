@@ -2,6 +2,7 @@ package iti.student.finalproject.domain.mapper
 
 import iti.student.finalproject.data.local.entity.FavLocationEntity
 import iti.student.finalproject.domain.model.FavLocationModel
+import iti.student.finalproject.domain.model.WeatherModel
 
 object FavLocationMapper {
     fun entityToModel(entity: FavLocationEntity): FavLocationModel {
@@ -27,6 +28,17 @@ object FavLocationMapper {
             model.iconUrl,
             model.lat,
             model.lon
+        )
+    }
+
+    fun weatherToLocation(weather: WeatherModel): FavLocationModel {
+        return FavLocationModel(
+            weather.city ?: "Unknown",
+            weather.country ?: "Unknown",
+            weather.temp,
+            weather.iconUrl,
+            weather.lat.toDouble(),
+            weather.lon.toDouble()
         )
     }
 }

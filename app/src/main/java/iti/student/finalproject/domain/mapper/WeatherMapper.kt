@@ -24,6 +24,8 @@ object WeatherMapper {
             pressure = dto.main.pressure,
             clouds = dto.clouds.all,
             iconUrl = mapOpenWeatherIconToGoogleCondition(dto.weather[0].icon),
+            lon = dto.coord.lon,
+            lat = dto.coord.lat,
         )
     }
 

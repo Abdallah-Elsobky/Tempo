@@ -24,6 +24,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -54,7 +55,15 @@ import iti.student.finalproject.utils.ResultState
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomeScreen(viewModel: WeatherViewModel, onNavigateToForecast: () -> Unit = {}) {
+fun HomeScreen(
+    viewModel: WeatherViewModel,
+    onNavigateToForecast: (lon: Float, lat: Float) -> Unit
+) {
+
+    LaunchedEffect(30.0, 31.0) {
+        viewModel.loadWeather(35.0, 39.0)
+        viewModel.loadForecast(35.0, 39.0)
+    }
 
     val weatherState by viewModel.weatherState.collectAsState()
     val forecastState by viewModel.forecastState.collectAsState()
@@ -86,7 +95,7 @@ fun HomeScreen(viewModel: WeatherViewModel, onNavigateToForecast: () -> Unit = {
             HomeContent(
                 weather,
                 forecast,
-                onNavigateToForecast
+                { onNavigateToForecast(weather.lon, weather.lat) }
             )
         }
     }

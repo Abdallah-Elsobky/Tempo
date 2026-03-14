@@ -2,6 +2,7 @@ package iti.student.finalproject
 
 import android.os.Build
 import android.os.Bundle
+import android.preference.PreferenceManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -33,6 +34,7 @@ import iti.student.finalproject.presentation.screen.FavViewModelFactory
 import iti.student.finalproject.presentation.screen.WeatherViewModel
 import iti.student.finalproject.presentation.screen.WeatherViewModelFactory
 import iti.student.finalproject.ui.theme.FinalProjectTheme
+import org.osmdroid.config.Configuration
 
 
 class MainActivity : ComponentActivity() {
@@ -63,7 +65,10 @@ class MainActivity : ComponentActivity() {
         val favViewModel: FavViewModel =
             ViewModelProvider(this, favFactory)[FavViewModel::class.java]
 
-
+        Configuration.getInstance().apply {
+            load(applicationContext, PreferenceManager.getDefaultSharedPreferences(applicationContext))
+            userAgentValue = packageName
+        }
 
         setContent {
             FinalProjectTheme {

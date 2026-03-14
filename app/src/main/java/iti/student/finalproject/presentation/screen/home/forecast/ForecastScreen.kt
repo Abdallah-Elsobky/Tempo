@@ -1,5 +1,7 @@
 package iti.student.finalproject.presentation.screen.home.forecast
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -51,14 +54,25 @@ data class WeatherInfoCard(
     val iconTint: Color
 )
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ForecastScreen(viewModel: WeatherViewModel, onBackClick: () -> Unit) {
+fun ForecastScreen(lon: Float, lat: Float, viewModel: WeatherViewModel, onBackClick: () -> Unit) {
     val infoCards = listOf(
         WeatherInfoCard("WIND", "10 mi", "Good visibility", R.drawable.ic_wind, WeatherAccentBlue),
         WeatherInfoCard("HUMIDITY", "4", "Moderate", R.drawable.ic_drop_water, WeatherTeal),
         WeatherInfoCard("CLOUD", "56°", "Comfortable", R.drawable.ic_cloud, WeatherPrimaryMedium),
-        WeatherInfoCard("PRESSURE","1015 hPa","Falling slightly", R.drawable.ic_pressure, WeatherPurple),
+        WeatherInfoCard(
+            "PRESSURE",
+            "1015 hPa",
+            "Falling slightly",
+            R.drawable.ic_pressure,
+            WeatherPurple
+        ),
     )
+
+    LaunchedEffect(lat, lon) {
+        viewModel.loadForecast(lat.toDouble(), lon.toDouble())
+    }
 
     val forecastState by viewModel.forecastState.collectAsState()
 

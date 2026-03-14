@@ -1,5 +1,8 @@
 package iti.student.finalproject.presentation.screen.favorites.map
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,19 +14,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,228 +36,78 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
 
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.compose.NavHost
+import androidx.compose.ui.viewinterop.AndroidView
 import iti.student.finalproject.R
+import iti.student.finalproject.domain.model.WeatherModel
+import iti.student.finalproject.presentation.screen.FavViewModel
+import iti.student.finalproject.presentation.screen.WeatherViewModel
+import iti.student.finalproject.presentation.screen.favorites.map.components.Header
+import iti.student.finalproject.presentation.screen.favorites.map.components.SearchBar
+import iti.student.finalproject.presentation.screen.favorites.map.components.SelectCityBottomSheet
+import iti.student.finalproject.presentation.screen.favorites.map.components.StreetMapView
 import iti.student.finalproject.presentation.utils.getTemperatureColor
 import iti.student.finalproject.ui.theme.*
+import iti.student.finalproject.utils.DrawableHelper
+import org.osmdroid.events.MapEventsReceiver
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NewFavScreen(onBackClick: () -> Unit = {}) {
+fun NewFavScreen(weatherModel: WeatherViewModel,favViewModel: FavViewModel, onBackClick: () -> Unit = {}) {
+    var showSheet by remember { mutableStateOf(true) }
+
+    LaunchedEffect(30.0, 31.0) {
+        weatherModel.loadWeather(30.0, 31.0)
+    }
+
+    val weatherState by weatherModel.weatherState.collectAsState()
+
+
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(WeatherGradientTop, WeatherGradientBottom)
-                )
-            )
+            .fillMaxWidth()
     ) {
-        MapView()
+        StreetMapView(30.0, 31.0) { lat, lon ->
+            Log.d("loco", "Location is ($lat , $lon)")
+            weatherModel.loadWeather(lat, lon)
+            showSheet = true
+        }
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color.Black.copy(0.3f), WeatherGradientBottom.copy(0.1f))
+                    )
+                )
                 .padding(horizontal = 24.dp)
                 .padding(top = 24.dp, bottom = 100.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(80.dp)
-            ) {
-                Box(
-                    Modifier
-                        .size(34.dp)
-                        .clip(CircleShape)
-                        .background(WeatherDivider)
-                        .clickable(true) {
-                            onBackClick.invoke()
-                        }
-                ) {
-                    Icon(
-                        painterResource(R.drawable.ic_back),
-                        contentDescription = null,
-                        tint = WeatherPrimaryDark,
-                        modifier = Modifier
-                            .size(19.dp)
-                            .align(Alignment.Center)
-                    )
-                }
-                Text(
-                    modifier = Modifier.weight(2f),
-                    text = "Select Location",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = WeatherPrimaryDark
-                )
-            }
-        }
-        SearchBar(Modifier.padding(10.dp))
-        SelectCityDialog(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-        )
-    }
-}
-
-@Composable
-fun SearchBar(modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 70.dp)
-            .height(55.dp),
-        shape = RoundedCornerShape(34.dp),
-        shadowElevation = 50.dp,
-        color = WeatherSurfaceCard.copy(.8f)
-    ) {
-        var text by remember { mutableStateOf("") }
-
-        TextField(
-            value = text,
-            onValueChange = { text = it },
-            placeholder = { Text("Search by name") },
-            leadingIcon = { Icon(painterResource(R.drawable.ic_search), null) },
-            colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = WeatherAccentBlue,
-                unfocusedIndicatorColor = WeatherDivider
-            ),
-            shape = RoundedCornerShape(34.dp)
-        )
-
-    }
-}
-
-@Composable
-fun MapView() {
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(WeatherYellow),
-    ) {
-        Column(
-            Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                "Map Here",
-                fontWeight = FontWeight.Bold,
-                color = WeatherSurfaceCard,
-                fontSize = 50.sp
-            )
-        }
-    }
-}
-
-@Composable
-fun SelectCityDialog(modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(24.dp),
-        shape = RoundedCornerShape(34.dp),
-        shadowElevation = 50.dp,
-        color = WeatherSurfaceCard
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp)
-                .background(WeatherSurfaceCard),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                Box(
-                    Modifier
-                        .size(44.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(WeatherAccentBlue.copy(0.1f))
-                ) {
-                    Icon(
-                        painterResource(R.drawable.ic_building),
-                        null,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .align(Alignment.Center),
-                        tint = WeatherAccentBlue
-                    )
-                }
-                Column {
-                    Text("Egypt", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text("Benha, kafr Saad,43215", fontSize = 12.sp, color = WeatherSecondaryText)
-                }
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                val color = getTemperatureColor(13f)
-                Box(
-                    Modifier
-                        .height(30.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(color.copy(0.1f))
-                        .padding(4.dp)
-                ) {
-                    Text(
-                        "Clear Sky", fontSize = 12.sp, color = color,
-                        modifier = Modifier.align(
-                            Alignment.Center
-                        )
-                    )
-                }
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontSize = 12.sp)) {
-                            append("Currently ")
-                        }
-                        withStyle(
-                            style = SpanStyle(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 12.sp
-                            )
-                        ) {
-                            append("30°C")
-                        }
+            Header(onBackClick)
+            SearchBar()
+            if (showSheet) {
+                SelectCityBottomSheet(
+                    weatherState = weatherState,
+                    onDismiss = { showSheet = false },
+                    onAddFavourite = {
+                        favViewModel.insertFavorite(it)
+                        showSheet = false
                     }
                 )
-            }
-            Row {
-                Button(
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-
-                    },
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = WeatherAccentBlue
-                    )
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            painterResource(R.drawable.ic_fav),
-                            null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Text("Add to Favourite")
-                    }
-                }
             }
         }
     }
