@@ -25,7 +25,7 @@ import iti.student.finalproject.ui.theme.WeatherSurfaceCard
 
 
 @Composable
-fun SearchBar(modifier: Modifier = Modifier) {
+fun SearchBar(modifier: Modifier = Modifier, onSearch: (String) -> Unit = {}) {
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -38,7 +38,10 @@ fun SearchBar(modifier: Modifier = Modifier) {
 
         TextField(
             value = text,
-            onValueChange = { text = it },
+            onValueChange = {
+                text = it
+                onSearch(it)
+            },
             placeholder = { Text("Search by name") },
             leadingIcon = { Icon(painterResource(R.drawable.ic_search), null) },
             colors = TextFieldDefaults.colors(
@@ -49,6 +52,5 @@ fun SearchBar(modifier: Modifier = Modifier) {
             ),
             shape = RoundedCornerShape(34.dp)
         )
-
     }
 }

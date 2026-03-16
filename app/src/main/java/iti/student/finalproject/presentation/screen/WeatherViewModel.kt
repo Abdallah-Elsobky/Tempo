@@ -6,9 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import iti.student.finalproject.data.local.entity.FavLocationEntity
+import iti.student.finalproject.domain.mapper.FavLocationMapper.cityDtoToModel
+import iti.student.finalproject.domain.mapper.FavLocationMapper.cityToModel
 import iti.student.finalproject.domain.mapper.ResultStateMapper
 import iti.student.finalproject.domain.mapper.WeatherMapper.weatherToDomain
 import iti.student.finalproject.domain.mapper.WeatherMapper.forecastToDomain
+import iti.student.finalproject.domain.model.FavLocationModel
 import iti.student.finalproject.domain.model.ForecastModel
 import iti.student.finalproject.domain.model.WeatherModel
 import iti.student.finalproject.domain.repository.WeatherRepository
@@ -34,14 +37,22 @@ class WeatherViewModel(
 
 
     private val _possibleCitiesState =
-        MutableStateFlow<ResultState<List<String>>>(ResultState.Loading)
+        MutableStateFlow<ResultState<List<FavLocationModel>>>(ResultState.Loading)
     val possibleCitiesState = _possibleCitiesState.asStateFlow()
 
     private val _cityNamesLocalized =
         MutableStateFlow<ResultState<List<String>>>(ResultState.Loading)
     val cityNamesLocalized = _cityNamesLocalized.asStateFlow()
 
+    private var lastWeatherLat: Double? = null
+    private var lastWeatherLon: Double? = null
+    private var lastForecastLat: Double? = null
+    private var lastForecastLon: Double? = null
+
     fun loadWeather(lat: Double, lon: Double) {
+        if (lastWeatherLat == lat && lastWeatherLon == lon) return
+        lastWeatherLat = lat
+        lastWeatherLon = lon
         viewModelScope.launch {
             repository.getWeather(lat, lon).collect {
                 _weatherState.value =
@@ -53,6 +64,9 @@ class WeatherViewModel(
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun loadForecast(lat: Double, lon: Double) {
+        if (lastForecastLat == lat && lastForecastLon == lon) return
+        lastForecastLat = lat
+        lastForecastLon = lon
         viewModelScope.launch {
             repository.getHourlyForecast(lat, lon).collect {
                 _forecastState.value = ResultStateMapper(::forecastToDomain)
@@ -64,7 +78,8 @@ class WeatherViewModel(
     fun loadPossibleCities(cityName: String) {
         viewModelScope.launch {
             repository.getPossibleCities(cityName).collect {
-                _possibleCitiesState.value = it
+                _possibleCitiesState.value = ResultStateMapper(::cityToModel)
+                    .map(it)
             }
         }
     }

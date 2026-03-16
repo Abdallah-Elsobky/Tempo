@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -73,12 +71,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             FinalProjectTheme {
                 val navController = rememberNavController()
-                val weatherState by weatherViewModel.weatherState.collectAsState()
-                val forecastState by weatherViewModel.forecastState.collectAsState()
-                val cityNamesLocalizedState by weatherViewModel.cityNamesLocalized.collectAsState()
-                val possibleCitiesState by weatherViewModel.possibleCitiesState.collectAsState()
-
-                weatherViewModel.loadPossibleCities("cairo")
                 Scaffold { padding ->
                     Box(
                         modifier = Modifier

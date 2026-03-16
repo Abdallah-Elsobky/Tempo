@@ -1,7 +1,16 @@
 package iti.student.finalproject.presentation.screen.home
 
+import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,36 +28,38 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationServices
 import iti.student.finalproject.R
-import iti.student.finalproject.data.remote.api.RetrofitInstance
-import iti.student.finalproject.data.remote.datasource.WeatherRemoteDataSourceImpl
-import iti.student.finalproject.data.repository.WeatherRepositoryImpl
 import iti.student.finalproject.domain.model.ForecastModel
 import iti.student.finalproject.domain.model.WeatherModel
 import iti.student.finalproject.presentation.components.HourlyForecast
 import iti.student.finalproject.presentation.components.MainWeather
 import iti.student.finalproject.presentation.components.WeatherDetails
 import iti.student.finalproject.presentation.screen.WeatherViewModel
-import iti.student.finalproject.presentation.screen.WeatherViewModelFactory
 import iti.student.finalproject.ui.theme.*
 import iti.student.finalproject.utils.ResultState
 
@@ -59,10 +70,32 @@ fun HomeScreen(
     viewModel: WeatherViewModel,
     onNavigateToForecast: (lon: Float, lat: Float) -> Unit
 ) {
+    val context = LocalContext.current
+    val activity = context as? Activity
 
-    LaunchedEffect(30.0, 31.0) {
-        viewModel.loadWeather(35.0, 39.0)
-        viewModel.loadForecast(35.0, 39.0)
+    var showPermissionSettingsDialog by remember { mutableStateOf(false) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            requestCurrentLocationAndLoadWeather(viewModel, context)
+        } else {
+            showPermissionSettingsDialog = true
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        val granted = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (granted) {
+            requestCurrentLocationAndLoadWeather(viewModel, context)
+        } else {
+            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
     }
 
     val weatherState by viewModel.weatherState.collectAsState()
@@ -88,7 +121,6 @@ fun HomeScreen(
         }
 
         weatherState is ResultState.Success && forecastState is ResultState.Success -> {
-
             val weather = (weatherState as ResultState.Success).data
             val forecast = (forecastState as ResultState.Success).data
 
@@ -98,6 +130,34 @@ fun HomeScreen(
                 { onNavigateToForecast(weather.lon, weather.lat) }
             )
         }
+    }
+
+    if (showPermissionSettingsDialog && activity != null) {
+        AlertDialog(
+            onDismissRequest = { showPermissionSettingsDialog = false },
+            title = { Text("Location permission needed") },
+            text = {
+                Text(
+                    "Please enable location permission in Settings to show weather for your current location."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showPermissionSettingsDialog = false
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", activity.packageName, null)
+                    }
+                    activity.startActivity(intent)
+                }) {
+                    Text("Open Settings")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPermissionSettingsDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
@@ -213,5 +273,33 @@ fun ForecastItem(onNavigateToForecast: () -> Unit = {}) {
                 .clickable { onNavigateToForecast() }
                 .padding(horizontal = 14.dp, vertical = 6.dp)
         )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun requestCurrentLocationAndLoadWeather(
+    viewModel: WeatherViewModel,
+    context: Context
+) {
+    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+    try {
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location ->
+                if (location != null) {
+                    val lat = location.latitude
+                    val lon = location.longitude
+                    viewModel.loadWeather(lat, lon)
+                    viewModel.loadForecast(lat, lon)
+                } else {
+                    viewModel.loadWeather(35.0, 39.0)
+                    viewModel.loadForecast(35.0, 39.0)
+                }
+            }
+            .addOnFailureListener {
+                viewModel.loadWeather(35.0, 39.0)
+                viewModel.loadForecast(35.0, 39.0)
+            }
+    } catch (e: SecurityException) {
+
     }
 }

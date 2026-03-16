@@ -28,7 +28,7 @@ interface WeatherApiService {
     @GET("geo/1.0/direct")
     suspend fun getPossibleCities(
         @Query("q") cityName: String,
-        @Query("limit") limit: Int = 3
+        @Query("limit") limit: Int = 1
     ): List<CityDto>
 
     @GET("geo/1.0/reverse")

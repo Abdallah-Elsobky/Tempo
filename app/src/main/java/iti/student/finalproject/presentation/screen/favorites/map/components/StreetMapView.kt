@@ -82,6 +82,17 @@ fun StreetMapView(
                 overlays.add(org.osmdroid.views.overlay.MapEventsOverlay(mapEventsReceiver))
             }
         },
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        update = { view ->
+            val newPoint = GeoPoint(initialLat, initialLon)
+            view.controller.setCenter(newPoint)
+
+            val marker = view.overlays.filterIsInstance<Marker>().firstOrNull()
+            if (marker != null) {
+                marker.position = newPoint
+            }
+
+            view.invalidate()
+        }
     )
 }
