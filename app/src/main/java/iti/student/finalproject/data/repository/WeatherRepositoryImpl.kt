@@ -4,6 +4,7 @@ import android.util.Log
 import iti.student.finalproject.data.local.datasource.WeatherLocalDataSource
 import iti.student.finalproject.data.local.entity.FavLocationEntity
 import iti.student.finalproject.data.remote.datasource.WeatherRemoteDataSource
+import iti.student.finalproject.data.remote.dto.CityDto
 import iti.student.finalproject.data.remote.dto.HourlyForecastResponseDto
 import iti.student.finalproject.data.remote.dto.WeatherResponseDto
 import iti.student.finalproject.domain.repository.WeatherRepository
@@ -43,13 +44,12 @@ class WeatherRepositoryImpl(
         }
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun getPossibleCities(cityName: String): Flow<ResultState<List<String>>> =
+    override suspend fun getPossibleCities(cityName: String): Flow<ResultState<List<CityDto>>> =
         flow {
             emit(ResultState.Loading)
             try {
                 val response = remoteDataSource.getPossibleCities(cityName)
-                val result: List<String> = response.map { it.name ?: "Unknown" }
-                emit(ResultState.Success(result))
+                emit(ResultState.Success(response))
             } catch (e: Exception) {
                 emit(ResultState.Error(e.message ?: "Unknown error"))
             }

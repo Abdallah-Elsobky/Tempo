@@ -59,29 +59,52 @@ import iti.student.finalproject.presentation.screen.favorites.map.components.Str
 import iti.student.finalproject.presentation.utils.getTemperatureColor
 import iti.student.finalproject.ui.theme.*
 import iti.student.finalproject.utils.DrawableHelper
-import org.osmdroid.events.MapEventsReceiver
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
+import iti.student.finalproject.utils.ResultState
+import kotlinx.coroutines.delay
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NewFavScreen(weatherModel: WeatherViewModel,favViewModel: FavViewModel, onBackClick: () -> Unit = {}) {
+fun NewFavScreen(
+    weatherModel: WeatherViewModel,
+    favViewModel: FavViewModel,
+    onBackClick: () -> Unit = {}
+) {
     var showSheet by remember { mutableStateOf(true) }
+    var selectedLat by remember { mutableStateOf(30.0) }
+    var selectedLon by remember { mutableStateOf(31.0) }
+    var searchQuery by remember { mutableStateOf("") }
 
-    LaunchedEffect(30.0, 31.0) {
-        weatherModel.loadWeather(30.0, 31.0)
+    LaunchedEffect(Unit) {
+        weatherModel.loadWeather(selectedLat, selectedLon)
+        weatherModel.loadPossibleCities("cairo")
     }
 
     val weatherState by weatherModel.weatherState.collectAsState()
+    val cityState by weatherModel.possibleCitiesState.collectAsState()
 
+    LaunchedEffect(searchQuery) {
+        if (searchQuery.length < 3) return@LaunchedEffect
+        delay(500)
+        weatherModel.loadPossibleCities(searchQuery)
+    }
+
+    LaunchedEffect(cityState) {
+        val state = cityState
+        if (state is ResultState.Success && state.data.isNotEmpty()) {
+            val city = state.data.first()
+            selectedLat = city.lat
+            selectedLon = city.lon
+            weatherModel.loadWeather(selectedLat, selectedLon)
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        StreetMapView(30.0, 31.0) { lat, lon ->
-            Log.d("loco", "Location is ($lat , $lon)")
+        StreetMapView(selectedLat, selectedLon) { lat, lon ->
+            selectedLat = lat
+            selectedLon = lon
             weatherModel.loadWeather(lat, lon)
             showSheet = true
         }
@@ -98,7 +121,9 @@ fun NewFavScreen(weatherModel: WeatherViewModel,favViewModel: FavViewModel, onBa
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Header(onBackClick)
-            SearchBar()
+            SearchBar{
+                searchQuery = it
+            }
             if (showSheet) {
                 SelectCityBottomSheet(
                     weatherState = weatherState,
