@@ -119,9 +119,7 @@ fun ForecastContent(
         modifier = Modifier
             .fillMaxSize()
             .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(WeatherGradientTop, WeatherGradientBottom)
-                )
+                WeatherGradientTop
             )
     ) {
         Column(
@@ -329,7 +327,8 @@ private fun InfoCard(
                 shape = RoundedCornerShape(20.dp)
             ),
         shape = RoundedCornerShape(20.dp),
-        color = WeatherSurfaceCard
+        color = WeatherSurfaceCard,
+        shadowElevation = 4.dp
     ) {
         Column(
             modifier = Modifier.padding(16.dp)

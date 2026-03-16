@@ -71,11 +71,7 @@ fun FavoritesScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(WeatherGradientTop, WeatherGradientBottom)
-                )
-            )
+            .background(WeatherGradientTop)
     ) {
         Column(
             modifier = Modifier

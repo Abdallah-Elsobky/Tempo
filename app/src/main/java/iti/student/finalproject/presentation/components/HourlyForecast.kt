@@ -52,7 +52,7 @@ private fun HourlyCard(item: ForecastModel, index: Int) {
             .height(160.dp),
         shape = RoundedCornerShape(20.dp),
         color = backgroundColor,
-        shadowElevation = if (index == 0) 8.dp else 0.dp
+        shadowElevation = 4.dp
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
