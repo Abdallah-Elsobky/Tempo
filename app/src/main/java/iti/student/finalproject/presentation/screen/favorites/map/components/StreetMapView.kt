@@ -1,5 +1,6 @@
 package iti.student.finalproject.presentation.screen.favorites.map.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -24,7 +25,7 @@ fun StreetMapView(
 ) {
     val context = LocalContext.current
     val mapView = remember { MapView(context) }
-
+//    Log.d("loco","${initialLat} ${initialLon}")
     AndroidView(
         factory = {
             mapView.apply {
