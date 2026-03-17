@@ -1,7 +1,6 @@
 package iti.student.finalproject.data.repository
 
-import android.util.Log
-import iti.student.finalproject.data.local.datasource.WeatherLocalDataSource
+import iti.student.finalproject.data.local.datasource.weather.WeatherLocalDataSource
 import iti.student.finalproject.data.local.entity.FavLocationEntity
 import iti.student.finalproject.data.remote.datasource.WeatherRemoteDataSource
 import iti.student.finalproject.data.remote.dto.CityDto

@@ -2,8 +2,10 @@ package iti.student.finalproject.utils
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Date
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -30,5 +32,15 @@ object TimeUtils {
 
         val dateTime = LocalDateTime.parse(date, inputFormatter)
         return dateTime.format(outputFormatter)
+    }
+
+    fun formatTime(timeMillis: Long): String {
+        val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        return formatter.format(Date(timeMillis))
+    }
+
+    fun dateFormatTime(timeMillis: Long): String {
+        val formatter = SimpleDateFormat("d MMM", Locale.getDefault())
+        return formatter.format(Date(timeMillis))
     }
 }

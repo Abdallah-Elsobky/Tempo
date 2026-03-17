@@ -8,6 +8,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import iti.student.finalproject.presentation.screen.AlertViewModel
 import iti.student.finalproject.presentation.screen.FavViewModel
 import iti.student.finalproject.presentation.screen.WeatherViewModel
 import iti.student.finalproject.presentation.screen.favorites.FavoritesScreen
@@ -22,7 +23,8 @@ import iti.student.finalproject.presentation.screen.settings.SettingsScreen
 fun NavGraph(
     navController: NavHostController,
     weatherViewModel: WeatherViewModel,
-    favViewModel: FavViewModel
+    favViewModel: FavViewModel,
+    alertViewModel: AlertViewModel
 ) {
 
     NavHost(
@@ -55,7 +57,7 @@ fun NavGraph(
             )
         }
 
-        composable(Screen.Notification.route) { NotificationScreen() }
+        composable(Screen.Notification.route) { NotificationScreen(alertViewModel) }
 
         composable(Screen.Settings.route) { SettingsScreen() }
 
