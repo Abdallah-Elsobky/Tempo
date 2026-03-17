@@ -1,5 +1,6 @@
 package iti.student.finalproject.presentation.screen.settings
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,24 +35,36 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import iti.student.finalproject.NotificationPrefs
 import iti.student.finalproject.R
 import iti.student.finalproject.ui.theme.*
 
 @Composable
 fun SettingsScreen() {
+    val context = LocalContext.current
+    val activity = context as? Activity
+
     var isCelsius by rememberSaveable { mutableStateOf(true) }
-    var isEnglish by rememberSaveable { mutableStateOf(true) }
-    var isLight by rememberSaveable { mutableStateOf(true) }
+    var isEnglish by rememberSaveable {
+        mutableStateOf(true)
+    }
+    var isLight by rememberSaveable {
+        mutableStateOf(true)
+    }
     var isKmPerHour by rememberSaveable { mutableStateOf(true) }
     var isGPS by rememberSaveable { mutableStateOf(true) }
 
-    var notificationsEnabled by rememberSaveable { mutableStateOf(true) }
-    var morningBriefingEnabled by rememberSaveable { mutableStateOf(true) }
-    var severeWeatherEnabled by rememberSaveable { mutableStateOf(true) }
+    var notificationsEnabled by rememberSaveable {
+        mutableStateOf(NotificationPrefs.areNotificationsEnabled(context))
+    }
+    var soundAlertsEnabled by rememberSaveable {
+        mutableStateOf(NotificationPrefs.isSoundAlertsEnabled(context))
+    }
 
     Box(
         modifier = Modifier
@@ -85,7 +98,10 @@ fun SettingsScreen() {
                     SegmentedControl(
                         options = listOf("en", "ar"),
                         selectedIndex = if (isEnglish) 0 else 1,
-                        onOptionSelected = { index -> isEnglish = index == 0 }
+                        onOptionSelected = { index ->
+                            val newLang = if (index == 0) "en" else "ar"
+                            isEnglish = newLang == "en"
+                        }
                     )
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -97,7 +113,10 @@ fun SettingsScreen() {
                     SegmentedControl(
                         options = listOf("light", "dark"),
                         selectedIndex = if (isLight) 0 else 1,
-                        onOptionSelected = { index -> isLight = index == 0 }
+                        onOptionSelected = { index ->
+                            val newTheme = if (index == 0) "light" else "dark"
+                            isLight = newTheme == "light"
+                        }
                     )
                 }
             }
@@ -146,7 +165,10 @@ fun SettingsScreen() {
                     title = "Enable Notifications",
                     subtitle = "Stay informed about weather",
                     checked = notificationsEnabled,
-                    onCheckedChange = { notificationsEnabled = it },
+                    onCheckedChange = {
+                        notificationsEnabled = it
+                        NotificationPrefs.setNotificationsEnabled(context, it)
+                    },
                     icon = R.drawable.ic_notification,
                     color = WeatherOrange
                 )
@@ -159,28 +181,14 @@ fun SettingsScreen() {
                 )
 
                 ToggleSettingRow(
-                    title = "Morning Briefing",
-                    subtitle = "Daily summary at your usual time",
-                    checked = morningBriefingEnabled && notificationsEnabled,
+                    title = "Alert Sound",
+                    subtitle = "Play sound for alert notifications",
+                    checked = soundAlertsEnabled && notificationsEnabled,
                     enabled = notificationsEnabled,
-                    onCheckedChange = { morningBriefingEnabled = it },
-                    icon = R.drawable.ic_sunset,
-                    color = WeatherActiveCard
-                )
-
-                HorizontalDivider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    color = WeatherDivider
-                )
-
-                ToggleSettingRow(
-                    title = "Severe Weather Alerts",
-                    subtitle = "Get notified about warnings",
-                    checked = severeWeatherEnabled && notificationsEnabled,
-                    enabled = notificationsEnabled,
-                    onCheckedChange = { severeWeatherEnabled = it },
+                    onCheckedChange = {
+                        soundAlertsEnabled = it
+                        NotificationPrefs.setSoundAlertsEnabled(context, it)
+                    },
                     icon = R.drawable.ic_notification,
                     color = WeatherPurple
                 )
