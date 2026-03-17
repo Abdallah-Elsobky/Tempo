@@ -2,4 +2,6 @@
     <string name="app_name">FinalProject</string>
     <string name="notification_channel_alerts_name">Weather Alerts</string>
     <string name="notification_channel_alerts_desc">Scheduled weather and alert notifications</string>
+    <string name="notification_channel_alerts_sound_name">Weather Alerts (Sound)</string>
+    <string name="notification_channel_alerts_sound_desc">Weather alerts with sound</string>
 </resources>

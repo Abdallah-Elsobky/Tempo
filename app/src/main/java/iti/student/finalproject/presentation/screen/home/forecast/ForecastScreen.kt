@@ -259,8 +259,6 @@ private fun DailyForecastRow(index: Int, forecast: ForecastModel) {
         Spacer(modifier = Modifier.width(8.dp))
 
         TemperatureBar(
-            low = forecast.minTemperature.toInt(),
-            high = forecast.maxTemperature.toInt(),
             modifier = Modifier
                 .weight(1f)
                 .height(5.dp)
@@ -279,17 +277,9 @@ private fun DailyForecastRow(index: Int, forecast: ForecastModel) {
 
 @Composable
 private fun TemperatureBar(
-    low: Int,
-    high: Int,
     modifier: Modifier = Modifier
 ) {
 
-    // TODO Fix this Formula
-    val overallMin = 55
-    val overallMax = 80
-    val range = (overallMax - overallMin).toFloat()
-    val startFraction = ((low - overallMin) / range).coerceIn(0f, 1f)
-    val endFraction = ((high - overallMin) / range).coerceIn(0f, 1f)
 
     Box(
         modifier = modifier
@@ -298,13 +288,14 @@ private fun TemperatureBar(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth(endFraction)
-                .padding(start = (startFraction * 100).dp.coerceAtMost(50.dp))
                 .fillMaxSize()
                 .clip(RoundedCornerShape(50))
                 .background(
                     brush = Brush.horizontalGradient(
                         colors = listOf(
+                            WeatherAccentBlue.copy(alpha = 0.2f),
+                            WeatherAccentBlue.copy(alpha = 0.6f),
+                            WeatherAccentBlue.copy(alpha = 0.6f),
                             WeatherAccentBlue.copy(alpha = 0.6f),
                             WeatherAccentBlue
                         )
