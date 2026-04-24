@@ -1,6 +1,7 @@
 package iti.student.finalproject
 
 import android.Manifest
+import android.content.res.Configuration as AndroidConfiguration
 import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -48,6 +49,7 @@ import iti.student.finalproject.domain.model.AppTheme
 import iti.student.finalproject.ui.theme.FinalProjectTheme
 import iti.student.finalproject.worker.AlertScheduler
 import org.osmdroid.config.Configuration
+import java.util.Locale
 
 
 class MainActivity : ComponentActivity() {
@@ -99,9 +101,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             val settings by settingsViewModel.settings.collectAsState()
             LaunchedEffect(settings.language) {
-                AppCompatDelegate.setApplicationLocales(
-                    LocaleListCompat.forLanguageTags(settings.language.code)
-                )
+                val selectedLanguage = settings.language.code
+                val currentLanguage = resources.configuration.locales[0]?.language ?: "en"
+                if (currentLanguage != selectedLanguage) {
+                    AppCompatDelegate.setApplicationLocales(
+                        LocaleListCompat.forLanguageTags(selectedLanguage)
+                    )
+                    applyLocaleToResources(selectedLanguage)
+                    recreate()
+                }
             }
             FinalProjectTheme(darkTheme = settings.theme == AppTheme.DARK) {
                 val navController = rememberNavController()
@@ -138,6 +146,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun applyLocaleToResources(languageCode: String) {
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+        val config = AndroidConfiguration(resources.configuration)
+        config.setLocale(locale)
+        @Suppress("DEPRECATION")
+        resources.updateConfiguration(config, resources.displayMetrics)
+        @Suppress("DEPRECATION")
+        applicationContext.resources.updateConfiguration(config, applicationContext.resources.displayMetrics)
     }
 }
 
