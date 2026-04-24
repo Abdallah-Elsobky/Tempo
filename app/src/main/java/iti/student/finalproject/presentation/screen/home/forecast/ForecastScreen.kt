@@ -69,11 +69,29 @@ fun ForecastScreen(
     onBackClick: () -> Unit
 ) {
     val infoCards = listOf(
-        WeatherInfoCard("WIND", "10 mi", "Good visibility", R.drawable.ic_wind, WeatherAccentBlue),
-        WeatherInfoCard("HUMIDITY", "4", "Moderate", R.drawable.ic_drop_water, WeatherTeal),
-        WeatherInfoCard("CLOUD", "56°", "Comfortable", R.drawable.ic_cloud, WeatherPrimaryMedium),
         WeatherInfoCard(
-            "PRESSURE",
+            stringResource(R.string.forecast_wind_label),
+            "10 mi",
+            "Good visibility",
+            R.drawable.ic_wind,
+            WeatherAccentBlue
+        ),
+        WeatherInfoCard(
+            stringResource(R.string.forecast_humidity_label),
+            "4",
+            "Moderate",
+            R.drawable.ic_drop_water,
+            WeatherTeal
+        ),
+        WeatherInfoCard(
+            stringResource(R.string.forecast_cloud_label),
+            "56°",
+            "Comfortable",
+            R.drawable.ic_cloud,
+            WeatherPrimaryMedium
+        ),
+        WeatherInfoCard(
+            stringResource(R.string.forecast_pressure_label),
             "1015 hPa",
             "Falling slightly",
             R.drawable.ic_pressure,

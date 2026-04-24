@@ -52,6 +52,8 @@ import iti.student.finalproject.domain.model.TemperatureUnit
 import iti.student.finalproject.domain.model.WindSpeedUnit
 import iti.student.finalproject.ui.theme.*
 
+private val SettingsContainerBorderAlpha = 0.18f
+
 @Composable
 fun SettingsScreen(settingsViewModel: SettingsViewModel) {
     val context = LocalContext.current
@@ -217,7 +219,7 @@ private fun SettingsSection(
             text = title,
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold,
-            color = WeatherSecondaryText,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
             letterSpacing = 1.2.sp
         )
 
@@ -230,7 +232,7 @@ private fun SettingsSection(
                 .background(MaterialTheme.colorScheme.surface)
                 .border(
                     width = 1.dp,
-                    color = WeatherCardBorder,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = SettingsContainerBorderAlpha),
                     shape = RoundedCornerShape(24.dp)
                 )
                 .padding(vertical = 14.dp)
@@ -290,10 +292,10 @@ private fun SegmentedControl(
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(WeatherDivider.copy(alpha = 0.4f))
+            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
             .border(
                 width = 1.dp,
-                color = WeatherCardBorder,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = SettingsContainerBorderAlpha),
                 shape = RoundedCornerShape(20.dp)
             )
     ) {

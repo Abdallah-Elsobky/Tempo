@@ -67,4 +67,8 @@
     <string name="alert_type_weather">طقس</string>
     <string name="alert_type_temperature">حرارة</string>
     <string name="delete_icon_desc">حذف</string>
+    <string name="forecast_wind_label">الرياح</string>
+    <string name="forecast_humidity_label">الرطوبة</string>
+    <string name="forecast_cloud_label">السحب</string>
+    <string name="forecast_pressure_label">الضغط</string>
 </resources>

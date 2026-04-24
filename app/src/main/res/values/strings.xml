@@ -67,4 +67,8 @@
     <string name="alert_type_weather">Weather</string>
     <string name="alert_type_temperature">Temperature</string>
     <string name="delete_icon_desc">Delete</string>
+    <string name="forecast_wind_label">WIND</string>
+    <string name="forecast_humidity_label">HUMIDITY</string>
+    <string name="forecast_cloud_label">CLOUD</string>
+    <string name="forecast_pressure_label">PRESSURE</string>
 </resources>

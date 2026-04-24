@@ -26,12 +26,13 @@ import iti.student.finalproject.R
 import iti.student.finalproject.domain.model.WeatherModel
 import iti.student.finalproject.domain.model.WindSpeedUnit
 import iti.student.finalproject.ui.theme.*
+import iti.student.finalproject.utils.NumberUtils.roundTo
 
 @Composable
 fun WeatherDetails(weather: WeatherModel, windSpeedUnit: WindSpeedUnit) {
     val windValue = when (windSpeedUnit) {
-        WindSpeedUnit.KMH -> "${weather.windSpeed * 3.6f} km/h"
-        WindSpeedUnit.MPH -> "${weather.windSpeed} mph"
+        WindSpeedUnit.KMH -> "${roundTo(weather.windSpeed * 3.6f, 1)} km/h"
+        WindSpeedUnit.MPH -> "${roundTo(weather.windSpeed, 1)} mph"
     }
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
