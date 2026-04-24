@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,7 +49,7 @@ fun Header(onBackClick: () -> Unit) {
         }
         Text(
             modifier = Modifier.weight(2f),
-            text = "Select Location",
+            text = stringResource(R.string.select_location),
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold,
             color = WeatherPrimaryDark

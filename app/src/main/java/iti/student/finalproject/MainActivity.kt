@@ -21,7 +21,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
@@ -109,7 +108,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold { padding ->
                     Box(
                         modifier = Modifier
-                            .background(Color(0xFFEAF2FF))
+                            .background(androidx.compose.material3.MaterialTheme.colorScheme.background)
                             .padding(padding)
                             .fillMaxSize()
                     ) {

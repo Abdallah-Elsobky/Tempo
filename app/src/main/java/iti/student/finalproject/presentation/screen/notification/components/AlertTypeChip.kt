@@ -10,7 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.LightGray
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import iti.student.finalproject.R
 import iti.student.finalproject.presentation.screen.notification.AlertType
 import iti.student.finalproject.ui.theme.WeatherAccentBlue
 
@@ -31,7 +33,12 @@ fun AlertTypeChip(
     ) {
 
         Text(
-            type.name,
+            when (type) {
+                AlertType.RAIN -> stringResource(R.string.alert_type_rain)
+                AlertType.STORM -> stringResource(R.string.alert_type_storm)
+                AlertType.WEATHER -> stringResource(R.string.alert_type_weather)
+                AlertType.TEMPERATURE -> stringResource(R.string.alert_type_temperature)
+            },
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             color = if (isSelected) Color.White else Color.Black
         )

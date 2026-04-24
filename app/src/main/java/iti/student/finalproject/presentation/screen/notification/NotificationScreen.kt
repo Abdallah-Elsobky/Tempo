@@ -34,13 +34,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -70,35 +70,36 @@ data class NotificationDisplayItem(
     val iconBackgroundTint: Color,
 )
 
+@Composable
 fun AlertModel.toNotificationDisplayItem(): NotificationDisplayItem {
     val (title, description, iconResId, iconTint, iconBg) = when (alertType) {
         AlertType.RAIN.name -> NotificationDisplayData(
-            "Rain Alert",
-            "You'll be notified when rain is expected in your area.",
+            stringResource(R.string.rain_alert),
+            stringResource(R.string.rain_alert_desc),
             R.drawable.ic_drop_water,
             WeatherTeal,
             WeatherTeal.copy(alpha = 0.12f)
         )
 
         AlertType.STORM.name -> NotificationDisplayData(
-            "Storm Alert",
-            "You'll be notified when severe weather or storms are forecast.",
+            stringResource(R.string.storm_alert),
+            stringResource(R.string.storm_alert_desc),
             R.drawable.ic_wind,
             WeatherAccentRed,
             WeatherAccentRed.copy(alpha = 0.12f)
         )
 
         AlertType.TEMPERATURE.name -> NotificationDisplayData(
-            "Temperature Alert",
-            "You'll be notified when temperature goes outside your set range.",
+            stringResource(R.string.temperature_alert),
+            stringResource(R.string.temperature_alert_desc),
             R.drawable.ic_sun,
             WeatherYellow,
             WeatherYellow.copy(alpha = 0.15f)
         )
 
         else -> NotificationDisplayData(
-            "Weather Alert",
-            "Scheduled weather notification.",
+            stringResource(R.string.weather_alert),
+            stringResource(R.string.weather_alert_desc),
             R.drawable.ic_cloud,
             WeatherAccentBlue,
             WeatherAccentBlue.copy(alpha = 0.12f)
@@ -129,14 +130,12 @@ fun NotificationScreen(alertViewModel: AlertViewModel) {
     var showSheet by remember { mutableStateOf(false) }
     var alertToDelete by remember { mutableStateOf<AlertModel?>(null) }
 
-    val displayItems = remember(alertState) {
-        alertState.map { it.toNotificationDisplayItem() }
-    }
+    val displayItems = alertState.map { it.toNotificationDisplayItem() }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(WeatherGradientTop)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -145,16 +144,16 @@ fun NotificationScreen(alertViewModel: AlertViewModel) {
                 .padding(top = 20.dp, bottom = 100.dp)
         ) {
             Text(
-                text = "Notifications",
+                text = stringResource(R.string.notifications),
                 fontSize = 26.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = WeatherPrimaryDark,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Text(
-                text = "Tap an alert to remove it",
+                text = stringResource(R.string.tap_alert_remove),
                 fontSize = 14.sp,
-                color = WeatherSecondaryText,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                 modifier = Modifier.padding(bottom = 16.dp)
             )
             if (displayItems.isEmpty()) {
@@ -165,8 +164,8 @@ fun NotificationScreen(alertViewModel: AlertViewModel) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No alerts yet.\nAdd one with the + button.",
-                        color = WeatherSecondaryText,
+                        text = stringResource(R.string.no_alerts_yet),
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                         fontSize = 15.sp,
                         lineHeight = 22.sp
                     )
@@ -217,7 +216,7 @@ fun NotificationScreen(alertViewModel: AlertViewModel) {
         alertToDelete?.let { alert ->
             DeleteAlertDialog(
                 alertDisplayTitle = displayItems.find { it.alert.id == alert.id }?.title
-                    ?: "this alert",
+                    ?: stringResource(R.string.this_alert),
                 onConfirm = {
                     alertViewModel.deleteAlert(alert)
                     alertToDelete = null
@@ -238,15 +237,15 @@ private fun DeleteAlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Delete alert?",
+                text = stringResource(R.string.delete_alert),
                 fontWeight = FontWeight.SemiBold,
-                color = WeatherPrimaryDark
+                color = MaterialTheme.colorScheme.onSurface
             )
         },
         text = {
             Text(
-                text = "Do you want to remove \"$alertDisplayTitle\"? This action cannot be undone.",
-                color = WeatherSecondaryText,
+                text = stringResource(R.string.delete_alert_message, alertDisplayTitle),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                 style = MaterialTheme.typography.bodyMedium
             )
         },
@@ -257,15 +256,15 @@ private fun DeleteAlertDialog(
                     contentColor = WeatherAccentRed
                 )
             ) {
-                Text("Delete", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.delete), fontWeight = FontWeight.SemiBold)
             }
         },
         dismissButton = {
             OutlinedButton(onClick = onDismiss) {
-                Text("Cancel", color = WeatherPrimaryDark)
+                Text(stringResource(R.string.cancel), color = MaterialTheme.colorScheme.onSurface)
             }
         },
-        containerColor = WeatherSurfaceCard,
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp)
     )
 }
@@ -282,7 +281,7 @@ fun NotificationItem(item: NotificationDisplayItem, onClick: () -> Unit = {}) {
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = WeatherSurfaceCard),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         border = BorderStroke(1.dp, WeatherCardBorder)
     ) {
@@ -316,7 +315,7 @@ fun NotificationItem(item: NotificationDisplayItem, onClick: () -> Unit = {}) {
                     text = item.title,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = WeatherPrimaryDark,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -324,7 +323,7 @@ fun NotificationItem(item: NotificationDisplayItem, onClick: () -> Unit = {}) {
                 Text(
                     text = item.description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = WeatherSecondaryText,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -337,21 +336,21 @@ fun NotificationItem(item: NotificationDisplayItem, onClick: () -> Unit = {}) {
                         painter = painterResource(R.drawable.ic_clock),
                         contentDescription = null,
                         modifier = Modifier.size(14.dp),
-                        tint = WeatherSecondaryText
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
                     Text(
                         text = "$startTime – $endTime | $date",
                         style = MaterialTheme.typography.labelSmall,
-                        color = WeatherSecondaryText
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
                 }
             }
 
             Icon(
                 painter = painterResource(R.drawable.ic_delete),
-                contentDescription = "Delete",
+                contentDescription = stringResource(R.string.delete_icon_desc),
                 modifier = Modifier.size(20.dp),
-                tint = WeatherSecondaryText
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
         }
     }

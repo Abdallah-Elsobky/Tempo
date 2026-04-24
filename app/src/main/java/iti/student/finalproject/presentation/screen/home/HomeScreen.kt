@@ -32,6 +32,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -48,6 +49,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -154,10 +156,10 @@ fun HomeScreen(
     if (showPermissionSettingsDialog && activity != null) {
         AlertDialog(
             onDismissRequest = { showPermissionSettingsDialog = false },
-            title = { Text("Location permission needed") },
+            title = { Text(stringResource(R.string.location_permission_needed)) },
             text = {
                 Text(
-                    "Please enable location permission in Settings to show weather for your current location."
+                    stringResource(R.string.location_permission_message)
                 )
             },
             confirmButton = {
@@ -168,12 +170,12 @@ fun HomeScreen(
                     }
                     activity.startActivity(intent)
                 }) {
-                    Text("Open Settings")
+                    Text(stringResource(R.string.open_settings))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showPermissionSettingsDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -191,8 +193,7 @@ fun HomeContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(WeatherGradientTop
-            )
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -267,7 +268,7 @@ fun ForecastItem(onNavigateToForecast: () -> Unit = {}) {
                 tint = WeatherSecondaryText
             )
             Text(
-                text = "  Forecast",
+                text = "  ${stringResource(R.string.forecast)}",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 color = WeatherPrimaryDark,
@@ -275,7 +276,7 @@ fun ForecastItem(onNavigateToForecast: () -> Unit = {}) {
             )
         }
         Text(
-            text = "5 DAYS",
+            text = stringResource(R.string.five_day_forecast),
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             color = WeatherAccentBlue,

@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import iti.student.finalproject.R
 import iti.student.finalproject.ui.theme.WeatherDivider
@@ -42,7 +43,7 @@ fun SearchBar(modifier: Modifier = Modifier, onSearch: (String) -> Unit = {}) {
                 text = it
                 onSearch(it)
             },
-            placeholder = { Text("Search by name") },
+            placeholder = { Text(stringResource(R.string.search_by_name)) },
             leadingIcon = { Icon(painterResource(R.drawable.ic_search), null) },
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,

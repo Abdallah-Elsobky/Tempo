@@ -26,6 +26,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import iti.student.finalproject.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,13 +72,13 @@ fun AddAlertBottomSheet(
         ) {
 
             Text(
-                "Create Weather Alert",
+                stringResource(R.string.create_weather_alert),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
 
             Text(
-                "Alert Type",
+                stringResource(R.string.alert_type),
                 fontWeight = FontWeight.SemiBold
             )
 
@@ -97,13 +99,13 @@ fun AddAlertBottomSheet(
             }
 
             DatePickerField(
-                title = "Start Date",
+                title = stringResource(R.string.start_date),
                 date = startDate,
                 onClick = { openStartPicker = true }
             )
 
             DatePickerField(
-                title = "End Date",
+                title = stringResource(R.string.end_date),
                 date = endDate,
                 onClick = { openEndPicker = true }
             )
@@ -120,7 +122,7 @@ fun AddAlertBottomSheet(
                     containerColor = WeatherAccentBlue
                 )
             ) {
-                Text("Save Alert")
+                Text(stringResource(R.string.save_alert))
             }
         }
     }
@@ -136,7 +138,7 @@ fun AddAlertBottomSheet(
                     startDate = state.selectedDateMillis
                     openStartPicker = false
                     openStartTimePicker = true
-                }) { Text("OK") }
+                }) { Text(stringResource(R.string.ok)) }
             }
         ) {
             DatePicker(state = state)
@@ -154,7 +156,7 @@ fun AddAlertBottomSheet(
                     endDate = state.selectedDateMillis
                     openEndPicker = false
                     openEndTimePicker = true
-                }) { Text("OK") }
+                }) { Text(stringResource(R.string.ok)) }
             }
         ) {
             DatePicker(state = state)
@@ -186,7 +188,7 @@ fun AddAlertBottomSheet(
                     }
 
                     openStartTimePicker = false
-                }) { Text("OK") }
+                }) { Text(stringResource(R.string.ok)) }
             },
             text = {
                 TimePicker(state = timeState)
@@ -221,7 +223,7 @@ fun AddAlertBottomSheet(
                     }
 
                     openEndTimePicker = false
-                }) { Text("OK") }
+                }) { Text(stringResource(R.string.ok)) }
             },
             text = {
                 TimePicker(state = timeState)

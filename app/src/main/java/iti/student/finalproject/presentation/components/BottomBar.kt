@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -29,14 +30,14 @@ import iti.student.finalproject.presentation.screen.WeatherViewModel
 fun BottomBar(navController: NavController, modifier: Modifier = Modifier) {
 
     val items = listOf(
-        BottomNavItem("Home", Screen.Home.route, painterResource(R.drawable.ic_home)),
-        BottomNavItem("Favorites", Screen.Favorites.route, painterResource(R.drawable.ic_fav)),
+        BottomNavItem(stringResource(R.string.home), Screen.Home.route, painterResource(R.drawable.ic_home)),
+        BottomNavItem(stringResource(R.string.favorites), Screen.Favorites.route, painterResource(R.drawable.ic_fav)),
         BottomNavItem(
-            "Notification",
+            stringResource(R.string.notifications),
             Screen.Notification.route,
             painterResource(R.drawable.ic_notification)
         ),
-        BottomNavItem("Settings", Screen.Settings.route, painterResource(R.drawable.ic_setting))
+        BottomNavItem(stringResource(R.string.settings), Screen.Settings.route, painterResource(R.drawable.ic_setting))
     )
 
     val mainRoutes = listOf(
@@ -54,7 +55,7 @@ fun BottomBar(navController: NavController, modifier: Modifier = Modifier) {
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             shape = RoundedCornerShape(34.dp),
             shadowElevation = 20.dp,
-            color = Color.White.copy(alpha = 0.97f)
+            color = androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(alpha = 0.97f)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -75,9 +76,9 @@ fun BottomBar(navController: NavController, modifier: Modifier = Modifier) {
 //                    label = { Text(item.title) },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = colorResource(R.color.blue),
-                            unselectedIconColor = Color.Gray,
+                            unselectedIconColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                             selectedTextColor = colorResource(R.color.blue),
-                            unselectedTextColor = Color.Gray,
+                            unselectedTextColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                             indicatorColor = Color.Transparent
                         )
                     )

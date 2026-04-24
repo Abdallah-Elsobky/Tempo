@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -38,6 +39,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,11 +67,7 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(WeatherGradientTop, WeatherGradientBottom)
-                )
-            )
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -80,16 +78,16 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Text(
-                text = "Settings",
+                text = stringResource(R.string.settings),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = WeatherPrimaryDark
+                color = MaterialTheme.colorScheme.onBackground
             )
 
-            SettingsSection(title = "Localization") {
+            SettingsSection(title = stringResource(R.string.localization)) {
                 SettingCardItem(
-                    title = "Language",
-                    subtitle = "Choose your language"
+                    title = stringResource(R.string.language),
+                    subtitle = stringResource(R.string.choose_language)
                 ) {
                     SegmentedControl(
                         options = listOf("en", "ar"),
@@ -104,8 +102,8 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
                 Spacer(modifier = Modifier.height(12.dp))
 
                 SettingCardItem(
-                    title = "Theme",
-                    subtitle = "Choose your Theme"
+                    title = stringResource(R.string.theme),
+                    subtitle = stringResource(R.string.choose_theme)
                 ) {
                     SegmentedControl(
                         options = listOf("light", "dark"),
@@ -119,10 +117,10 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
                 }
             }
 
-            SettingsSection(title = "UNITS") {
+            SettingsSection(title = stringResource(R.string.units)) {
                 SettingCardItem(
-                    title = "Temperature",
-                    subtitle = "Choose your unit"
+                    title = stringResource(R.string.temperature),
+                    subtitle = stringResource(R.string.choose_unit)
                 ) {
                     SegmentedControl(
                         options = listOf("°C", "°F"),
@@ -138,8 +136,8 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
                 Spacer(modifier = Modifier.height(12.dp))
 
                 SettingCardItem(
-                    title = "Wind Speed",
-                    subtitle = "Display speed in unit"
+                    title = stringResource(R.string.wind_speed),
+                    subtitle = stringResource(R.string.display_speed_in_unit)
                 ) {
                     SegmentedControl(
                         options = listOf("km/h", "mph"),
@@ -155,8 +153,8 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
                 Spacer(modifier = Modifier.height(12.dp))
 
                 SettingCardItem(
-                    title = "Location",
-                    subtitle = "Get location method"
+                    title = stringResource(R.string.location),
+                    subtitle = stringResource(R.string.get_location_method)
                 ) {
                     SegmentedControl(
                         options = listOf("GPS", "MAP"),
@@ -170,10 +168,10 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
                 }
             }
 
-            SettingsSection(title = "NOTIFICATIONS") {
+            SettingsSection(title = stringResource(R.string.notifications_section)) {
                 ToggleSettingRow(
-                    title = "Enable Notifications",
-                    subtitle = "Stay informed about weather",
+                    title = stringResource(R.string.enable_notifications),
+                    subtitle = stringResource(R.string.stay_informed_weather),
                     checked = notificationsEnabled,
                     onCheckedChange = {
                         notificationsEnabled = it
@@ -191,8 +189,8 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
                 )
 
                 ToggleSettingRow(
-                    title = "Alert Sound",
-                    subtitle = "Play sound for alert notifications",
+                    title = stringResource(R.string.alert_sound),
+                    subtitle = stringResource(R.string.play_sound_for_alerts),
                     checked = soundAlertsEnabled && notificationsEnabled,
                     enabled = notificationsEnabled,
                     onCheckedChange = {
@@ -229,7 +227,7 @@ private fun SettingsSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(24.dp))
-                .background(WeatherSurfaceCard)
+                .background(MaterialTheme.colorScheme.surface)
                 .border(
                     width = 1.dp,
                     color = WeatherCardBorder,
@@ -262,13 +260,13 @@ private fun SettingCardItem(
                 text = title,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = WeatherPrimaryDark
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = subtitle,
                 fontSize = 12.sp,
-                color = WeatherSecondaryText
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
         }
 
@@ -315,7 +313,7 @@ private fun SegmentedControl(
                     text = option,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
-                    color = if (isSelected) Color.White else WeatherPrimaryDark
+                    color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -368,13 +366,13 @@ private fun ToggleSettingRow(
                     text = title,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = WeatherPrimaryDark.copy(alpha = effectiveAlpha)
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = effectiveAlpha)
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = subtitle,
                     fontSize = 12.sp,
-                    color = WeatherSecondaryText.copy(alpha = effectiveAlpha)
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = effectiveAlpha * 0.7f)
                 )
             }
         }

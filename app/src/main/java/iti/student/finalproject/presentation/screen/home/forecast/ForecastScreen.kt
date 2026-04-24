@@ -23,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -135,9 +137,7 @@ fun ForecastContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                WeatherGradientTop
-            )
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -170,7 +170,7 @@ fun ForecastContent(
                 }
                 Text(
                     modifier = Modifier.weight(2f),
-                    text = "5-Day Forecast",
+                    text = stringResource(R.string.five_day_forecast),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = WeatherPrimaryDark
