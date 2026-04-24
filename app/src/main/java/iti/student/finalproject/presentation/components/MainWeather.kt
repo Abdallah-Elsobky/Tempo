@@ -23,10 +23,12 @@ import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import iti.student.finalproject.R
 import iti.student.finalproject.domain.model.WeatherModel
+import iti.student.finalproject.domain.model.TemperatureUnit
 import iti.student.finalproject.ui.theme.*
 
 @Composable
-fun MainWeather(weather: WeatherModel) {
+fun MainWeather(weather: WeatherModel, temperatureUnit: TemperatureUnit) {
+    val unitSymbol = if (temperatureUnit == TemperatureUnit.FAHRENHEIT) "°F" else "°C"
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -58,7 +60,7 @@ fun MainWeather(weather: WeatherModel) {
                         color = WeatherPrimaryMedium
                     )
                 ) {
-                    append("°C")
+                    append(unitSymbol)
                 }
             }
         )

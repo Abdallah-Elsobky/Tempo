@@ -11,18 +11,22 @@ class WeatherRemoteDataSourceImpl(private val apiService: WeatherApiService) :
     WeatherRemoteDataSource {
     override suspend fun getWeather(
         lat: Double,
-        lon: Double
+        lon: Double,
+        language: String,
+        units: String
     ): WeatherResponseDto {
         Log.d("loco repo", "call getWeather...")
-        return apiService.getWeather(lat, lon)
+        return apiService.getWeather(lat, lon, language, units)
     }
 
     override suspend fun getHourlyForecast(
         lat: Double,
-        lon: Double
+        lon: Double,
+        language: String,
+        units: String
     ): HourlyForecastResponseDto {
         Log.d("loco repo", "call Forecast...")
-        return apiService.getHourlyForecast(lat, lon)
+        return apiService.getHourlyForecast(lat, lon, language, units)
     }
 
     override suspend fun getPossibleCities(cityName: String): List<CityDto> {

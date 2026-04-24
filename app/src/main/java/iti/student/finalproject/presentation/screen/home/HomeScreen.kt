@@ -54,6 +54,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 import iti.student.finalproject.R
+import iti.student.finalproject.domain.model.AppSettings
+import iti.student.finalproject.domain.model.LocationMode
 import iti.student.finalproject.domain.model.ForecastModel
 import iti.student.finalproject.domain.model.WeatherModel
 import iti.student.finalproject.presentation.components.HourlyForecast
@@ -68,6 +70,7 @@ import iti.student.finalproject.utils.ResultState
 @Composable
 fun HomeScreen(
     viewModel: WeatherViewModel,
+    settings: AppSettings,
     onNavigateToForecast: (lon: Float, lat: Float) -> Unit
 ) {
     val context = LocalContext.current
@@ -79,22 +82,37 @@ fun HomeScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            requestCurrentLocationAndLoadWeather(viewModel, context)
+            requestCurrentLocationAndLoadWeather(viewModel, context, settings)
         } else {
             showPermissionSettingsDialog = true
         }
     }
 
-    LaunchedEffect(Unit) {
-        val granted = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (granted) {
-            requestCurrentLocationAndLoadWeather(viewModel, context)
+    LaunchedEffect(settings.locationMode, settings.language, settings.apiUnits) {
+        if (settings.locationMode == LocationMode.MAP) {
+            viewModel.loadWeather(
+                settings.mapLatitude,
+                settings.mapLongitude,
+                settings.language.code,
+                settings.apiUnits
+            )
+            viewModel.loadForecast(
+                settings.mapLatitude,
+                settings.mapLongitude,
+                settings.language.code,
+                settings.apiUnits
+            )
         } else {
-            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            val granted = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (granted) {
+                requestCurrentLocationAndLoadWeather(viewModel, context, settings)
+            } else {
+                permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
         }
     }
 
@@ -127,6 +145,7 @@ fun HomeScreen(
             HomeContent(
                 weather,
                 forecast,
+                settings,
                 { onNavigateToForecast(weather.lon, weather.lat) }
             )
         }
@@ -165,6 +184,7 @@ fun HomeScreen(
 fun HomeContent(
     weather: WeatherModel,
     forecast: List<ForecastModel>,
+    settings: AppSettings,
     onNavigateToForecast: () -> Unit = {}
 ) {
     Log.d("loco", forecast.toString())
@@ -204,7 +224,7 @@ fun HomeContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            MainWeather(weather)
+            MainWeather(weather, settings.temperatureUnit)
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -216,7 +236,7 @@ fun HomeContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            WeatherDetails(weather)
+            WeatherDetails(weather, settings.windSpeedUnit)
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -224,7 +244,7 @@ fun HomeContent(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            HourlyForecast(forecast)
+            HourlyForecast(forecast, settings.temperatureUnit)
 
             Spacer(modifier = Modifier.height(24.dp))
         }
@@ -276,7 +296,8 @@ fun ForecastItem(onNavigateToForecast: () -> Unit = {}) {
 @RequiresApi(Build.VERSION_CODES.O)
 private fun requestCurrentLocationAndLoadWeather(
     viewModel: WeatherViewModel,
-    context: Context
+    context: Context,
+    settings: AppSettings
 ) {
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     try {
@@ -285,16 +306,16 @@ private fun requestCurrentLocationAndLoadWeather(
                 if (location != null) {
                     val lat = location.latitude
                     val lon = location.longitude
-                    viewModel.loadWeather(lat, lon)
-                    viewModel.loadForecast(lat, lon)
+                    viewModel.loadWeather(lat, lon, settings.language.code, settings.apiUnits)
+                    viewModel.loadForecast(lat, lon, settings.language.code, settings.apiUnits)
                 } else {
-                    viewModel.loadWeather(35.0, 39.0)
-                    viewModel.loadForecast(35.0, 39.0)
+                    viewModel.loadWeather(35.0, 39.0, settings.language.code, settings.apiUnits)
+                    viewModel.loadForecast(35.0, 39.0, settings.language.code, settings.apiUnits)
                 }
             }
             .addOnFailureListener {
-                viewModel.loadWeather(35.0, 39.0)
-                viewModel.loadForecast(35.0, 39.0)
+                viewModel.loadWeather(35.0, 39.0, settings.language.code, settings.apiUnits)
+                viewModel.loadForecast(35.0, 39.0, settings.language.code, settings.apiUnits)
             }
     } catch (e: SecurityException) {
 

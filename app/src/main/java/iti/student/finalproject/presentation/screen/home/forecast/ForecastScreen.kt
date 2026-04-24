@@ -40,7 +40,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import iti.student.finalproject.R
+import iti.student.finalproject.domain.model.AppSettings
 import iti.student.finalproject.domain.model.ForecastModel
+import iti.student.finalproject.domain.model.TemperatureUnit
+import iti.student.finalproject.domain.model.WindSpeedUnit
 import iti.student.finalproject.presentation.screen.WeatherViewModel
 import iti.student.finalproject.ui.theme.*
 import iti.student.finalproject.utils.NumberUtils.roundTo
@@ -56,7 +59,13 @@ data class WeatherInfoCard(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ForecastScreen(lon: Float, lat: Float, viewModel: WeatherViewModel, onBackClick: () -> Unit) {
+fun ForecastScreen(
+    lon: Float,
+    lat: Float,
+    viewModel: WeatherViewModel,
+    settings: AppSettings,
+    onBackClick: () -> Unit
+) {
     val infoCards = listOf(
         WeatherInfoCard("WIND", "10 mi", "Good visibility", R.drawable.ic_wind, WeatherAccentBlue),
         WeatherInfoCard("HUMIDITY", "4", "Moderate", R.drawable.ic_drop_water, WeatherTeal),
@@ -70,8 +79,8 @@ fun ForecastScreen(lon: Float, lat: Float, viewModel: WeatherViewModel, onBackCl
         ),
     )
 
-    LaunchedEffect(lat, lon) {
-        viewModel.loadForecast(lat.toDouble(), lon.toDouble())
+    LaunchedEffect(lat, lon, settings.language, settings.apiUnits) {
+        viewModel.loadForecast(lat.toDouble(), lon.toDouble(), settings.language.code, settings.apiUnits)
     }
 
     val forecastState by viewModel.forecastState.collectAsState()
@@ -96,6 +105,7 @@ fun ForecastScreen(lon: Float, lat: Float, viewModel: WeatherViewModel, onBackCl
             ForecastContent(
                 forecastState as ResultState.Success<List<ForecastModel>>,
                 infoCards,
+                settings,
                 onBackClick
             )
         }
@@ -107,11 +117,18 @@ fun ForecastScreen(lon: Float, lat: Float, viewModel: WeatherViewModel, onBackCl
 fun ForecastContent(
     forecastState: ResultState.Success<List<ForecastModel>>,
     infoCards: List<WeatherInfoCard>,
+    settings: AppSettings,
     onBackClick: () -> Unit
 ) {
 
     val forecasts = forecastState.data.filter { it.dayTime == "12 AM" }
-    infoCards.get(0).value = "${roundTo(forecasts.get(0).windSpeed, 1)} km/h"
+    val windValue = if (settings.windSpeedUnit == WindSpeedUnit.KMH) {
+        "${roundTo(forecasts.get(0).windSpeed * 3.6f, 1)} km/h"
+    } else {
+        "${roundTo(forecasts.get(0).windSpeed, 1)} mph"
+    }
+    val temperatureSymbol = if (settings.temperatureUnit == TemperatureUnit.FAHRENHEIT) "°F" else "°C"
+    infoCards.get(0).value = windValue
     infoCards.get(1).value = "${forecasts.get(0).humidity} %"
     infoCards.get(2).value = "${forecasts.get(0).clouds} %"
     infoCards.get(3).value = "${forecasts.get(0).pressure} hPa"
@@ -170,7 +187,7 @@ fun ForecastContent(
             ) {
                 Column(modifier = Modifier.padding(vertical = 8.dp)) {
                     forecasts.forEachIndexed { index, forecast ->
-                        DailyForecastRow(index, forecast)
+                        DailyForecastRow(index, forecast, temperatureSymbol)
                         if (index < forecasts.lastIndex) {
                             HorizontalDivider(
                                 color = WeatherDivider,
@@ -210,7 +227,7 @@ fun ForecastContent(
 }
 
 @Composable
-private fun DailyForecastRow(index: Int, forecast: ForecastModel) {
+private fun DailyForecastRow(index: Int, forecast: ForecastModel, temperatureSymbol: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -250,7 +267,7 @@ private fun DailyForecastRow(index: Int, forecast: ForecastModel) {
         )
 
         Text(
-            text = "${forecast.minTemperature}°",
+            text = "${forecast.minTemperature}$temperatureSymbol",
             fontSize = 13.sp,
             fontWeight = FontWeight.Medium,
             color = WeatherSecondaryText
@@ -267,7 +284,7 @@ private fun DailyForecastRow(index: Int, forecast: ForecastModel) {
         Spacer(modifier = Modifier.width(8.dp))
 
         Text(
-            text = "${forecast.maxTemperature}°",
+            text = "${forecast.maxTemperature}$temperatureSymbol",
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
             color = WeatherPrimaryDark

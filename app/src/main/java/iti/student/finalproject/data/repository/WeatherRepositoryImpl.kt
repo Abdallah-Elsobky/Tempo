@@ -19,11 +19,13 @@ class WeatherRepositoryImpl(
 ) : WeatherRepository {
     override suspend fun getWeather(
         lat: Double,
-        lon: Double
+        lon: Double,
+        language: String,
+        units: String
     ): Flow<ResultState<WeatherResponseDto>> = flow {
         emit(ResultState.Loading)
         try {
-            val response = remoteDataSource.getWeather(lat, lon)
+            val response = remoteDataSource.getWeather(lat, lon, language, units)
             emit(ResultState.Success(response))
         } catch (e: Exception) {
             emit(ResultState.Error(e.message ?: "Unknown error"))
@@ -32,11 +34,13 @@ class WeatherRepositoryImpl(
 
     override suspend fun getHourlyForecast(
         lat: Double,
-        lon: Double
+        lon: Double,
+        language: String,
+        units: String
     ): Flow<ResultState<HourlyForecastResponseDto>> = flow {
         emit(ResultState.Loading)
         try {
-            val response = remoteDataSource.getHourlyForecast(lat, lon)
+            val response = remoteDataSource.getHourlyForecast(lat, lon, language, units)
             emit(ResultState.Success(response))
         } catch (e: Exception) {
             emit(ResultState.Error(e.message ?: "Unknown error"))

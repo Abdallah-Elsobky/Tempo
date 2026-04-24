@@ -25,6 +25,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,22 +43,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import iti.student.finalproject.NotificationPrefs
 import iti.student.finalproject.R
+import iti.student.finalproject.domain.model.AppLanguage
+import iti.student.finalproject.domain.model.AppTheme
+import iti.student.finalproject.domain.model.LocationMode
+import iti.student.finalproject.domain.model.TemperatureUnit
+import iti.student.finalproject.domain.model.WindSpeedUnit
 import iti.student.finalproject.ui.theme.*
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(settingsViewModel: SettingsViewModel) {
     val context = LocalContext.current
-    val activity = context as? Activity
-
-    var isCelsius by rememberSaveable { mutableStateOf(true) }
-    var isEnglish by rememberSaveable {
-        mutableStateOf(true)
-    }
-    var isLight by rememberSaveable {
-        mutableStateOf(true)
-    }
-    var isKmPerHour by rememberSaveable { mutableStateOf(true) }
-    var isGPS by rememberSaveable { mutableStateOf(true) }
+    val settings by settingsViewModel.settings.collectAsState()
 
     var notificationsEnabled by rememberSaveable {
         mutableStateOf(NotificationPrefs.areNotificationsEnabled(context))
@@ -97,10 +93,11 @@ fun SettingsScreen() {
                 ) {
                     SegmentedControl(
                         options = listOf("en", "ar"),
-                        selectedIndex = if (isEnglish) 0 else 1,
+                        selectedIndex = if (settings.language == AppLanguage.ENGLISH) 0 else 1,
                         onOptionSelected = { index ->
-                            val newLang = if (index == 0) "en" else "ar"
-                            isEnglish = newLang == "en"
+                            settingsViewModel.setLanguage(
+                                if (index == 0) AppLanguage.ENGLISH else AppLanguage.ARABIC
+                            )
                         }
                     )
                 }
@@ -112,10 +109,11 @@ fun SettingsScreen() {
                 ) {
                     SegmentedControl(
                         options = listOf("light", "dark"),
-                        selectedIndex = if (isLight) 0 else 1,
+                        selectedIndex = if (settings.theme == AppTheme.LIGHT) 0 else 1,
                         onOptionSelected = { index ->
-                            val newTheme = if (index == 0) "light" else "dark"
-                            isLight = newTheme == "light"
+                            settingsViewModel.setTheme(
+                                if (index == 0) AppTheme.LIGHT else AppTheme.DARK
+                            )
                         }
                     )
                 }
@@ -128,8 +126,12 @@ fun SettingsScreen() {
                 ) {
                     SegmentedControl(
                         options = listOf("°C", "°F"),
-                        selectedIndex = if (isCelsius) 0 else 1,
-                        onOptionSelected = { index -> isCelsius = index == 0 }
+                        selectedIndex = if (settings.temperatureUnit == TemperatureUnit.CELSIUS) 0 else 1,
+                        onOptionSelected = { index ->
+                            settingsViewModel.setTemperatureUnit(
+                                if (index == 0) TemperatureUnit.CELSIUS else TemperatureUnit.FAHRENHEIT
+                            )
+                        }
                     )
                 }
 
@@ -141,8 +143,12 @@ fun SettingsScreen() {
                 ) {
                     SegmentedControl(
                         options = listOf("km/h", "mph"),
-                        selectedIndex = if (isKmPerHour) 0 else 1,
-                        onOptionSelected = { index -> isKmPerHour = index == 0 }
+                        selectedIndex = if (settings.windSpeedUnit == WindSpeedUnit.KMH) 0 else 1,
+                        onOptionSelected = { index ->
+                            settingsViewModel.setWindSpeedUnit(
+                                if (index == 0) WindSpeedUnit.KMH else WindSpeedUnit.MPH
+                            )
+                        }
                     )
                 }
 
@@ -154,8 +160,12 @@ fun SettingsScreen() {
                 ) {
                     SegmentedControl(
                         options = listOf("GPS", "MAP"),
-                        selectedIndex = if (isGPS) 0 else 1,
-                        onOptionSelected = { index -> isGPS = index == 0 }
+                        selectedIndex = if (settings.locationMode == LocationMode.GPS) 0 else 1,
+                        onOptionSelected = { index ->
+                            settingsViewModel.setLocationMode(
+                                if (index == 0) LocationMode.GPS else LocationMode.MAP
+                            )
+                        }
                     )
                 }
             }

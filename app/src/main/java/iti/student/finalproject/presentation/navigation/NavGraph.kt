@@ -3,6 +3,7 @@ package iti.student.finalproject.presentation.navigation
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -17,6 +18,7 @@ import iti.student.finalproject.presentation.screen.home.forecast.ForecastScreen
 import iti.student.finalproject.presentation.screen.home.HomeScreen
 import iti.student.finalproject.presentation.screen.notification.NotificationScreen
 import iti.student.finalproject.presentation.screen.settings.SettingsScreen
+import iti.student.finalproject.presentation.screen.settings.SettingsViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -24,7 +26,8 @@ fun NavGraph(
     navController: NavHostController,
     weatherViewModel: WeatherViewModel,
     favViewModel: FavViewModel,
-    alertViewModel: AlertViewModel
+    alertViewModel: AlertViewModel,
+    settingsViewModel: SettingsViewModel
 ) {
 
     NavHost(
@@ -33,8 +36,10 @@ fun NavGraph(
     ) {
 
         composable(Screen.Home.route) {
+            val settings = settingsViewModel.settings.collectAsState().value
             HomeScreen(
                 weatherViewModel,
+                settings,
                 onNavigateToForecast = { lon, lat ->
                     navController.navigate("forecast?lat=${lat}&lon=${lon}")
                 }
@@ -59,7 +64,7 @@ fun NavGraph(
 
         composable(Screen.Notification.route) { NotificationScreen(alertViewModel) }
 
-        composable(Screen.Settings.route) { SettingsScreen() }
+        composable(Screen.Settings.route) { SettingsScreen(settingsViewModel) }
 
         composable(
             Screen.Forecast.route,
@@ -72,6 +77,7 @@ fun NavGraph(
             ForecastScreen(
                 lon, lat,
                 weatherViewModel,
+                settings = settingsViewModel.settings.collectAsState().value,
                 onBackClick = {
                     navController.popBackStack(Screen.Home.route, false)
                 }
@@ -82,6 +88,7 @@ fun NavGraph(
             NewFavScreen(
                 weatherViewModel,
                 favViewModel,
+                settingsViewModel,
                 onBackClick = {
                     navController.popBackStack(Screen.Favorites.route, false)
                 }

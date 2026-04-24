@@ -52,6 +52,7 @@ import iti.student.finalproject.R
 import iti.student.finalproject.domain.model.WeatherModel
 import iti.student.finalproject.presentation.screen.FavViewModel
 import iti.student.finalproject.presentation.screen.WeatherViewModel
+import iti.student.finalproject.presentation.screen.settings.SettingsViewModel
 import iti.student.finalproject.presentation.screen.favorites.map.components.Header
 import iti.student.finalproject.presentation.screen.favorites.map.components.SearchBar
 import iti.student.finalproject.presentation.screen.favorites.map.components.SelectCityBottomSheet
@@ -67,15 +68,17 @@ import kotlinx.coroutines.delay
 fun NewFavScreen(
     weatherModel: WeatherViewModel,
     favViewModel: FavViewModel,
+    settingsViewModel: SettingsViewModel,
     onBackClick: () -> Unit = {}
 ) {
+    val settings by settingsViewModel.settings.collectAsState()
     var showSheet by remember { mutableStateOf(true) }
     var selectedLat by remember { mutableStateOf(30.0) }
     var selectedLon by remember { mutableStateOf(31.0) }
     var searchQuery by remember { mutableStateOf("") }
 
-    LaunchedEffect(Unit) {
-        weatherModel.loadWeather(selectedLat, selectedLon)
+    LaunchedEffect(settings.language, settings.apiUnits) {
+        weatherModel.loadWeather(selectedLat, selectedLon, settings.language.code, settings.apiUnits)
         weatherModel.loadPossibleCities("cairo")
     }
 
@@ -94,7 +97,12 @@ fun NewFavScreen(
             val city = state.data.first()
             selectedLat = city.lat
             selectedLon = city.lon
-            weatherModel.loadWeather(selectedLat, selectedLon)
+            weatherModel.loadWeather(
+                selectedLat,
+                selectedLon,
+                settings.language.code,
+                settings.apiUnits
+            )
         }
     }
 
@@ -105,7 +113,8 @@ fun NewFavScreen(
         StreetMapView(selectedLat, selectedLon) { lat, lon ->
             selectedLat = lat
             selectedLon = lon
-            weatherModel.loadWeather(lat, lon)
+            weatherModel.loadWeather(lat, lon, settings.language.code, settings.apiUnits)
+            settingsViewModel.setMapLocation(lat, lon)
             showSheet = true
         }
         Column(

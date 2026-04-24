@@ -23,16 +23,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import iti.student.finalproject.R
 import iti.student.finalproject.domain.model.WeatherModel
+import iti.student.finalproject.domain.model.WindSpeedUnit
 import iti.student.finalproject.ui.theme.*
 
 @Composable
-fun WeatherDetails(weather: WeatherModel) {
+fun WeatherDetails(weather: WeatherModel, windSpeedUnit: WindSpeedUnit) {
+    val windValue = when (windSpeedUnit) {
+        WindSpeedUnit.KMH -> "${weather.windSpeed * 3.6f} km/h"
+        WindSpeedUnit.MPH -> "${weather.windSpeed} mph"
+    }
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier.fillMaxWidth()
     ) {
         WeatherDetailItem(
-            value = "${weather.windSpeed} km/h",
+            value = windValue,
             iconRes = R.drawable.ic_wind,
             iconTint = WeatherAccentBlue
         )
