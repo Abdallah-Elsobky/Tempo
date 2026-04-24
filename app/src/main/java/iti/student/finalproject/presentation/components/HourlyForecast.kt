@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,9 +45,10 @@ fun HourlyForecast(forecast: List<ForecastModel>, temperatureUnit: TemperatureUn
 @Composable
 private fun HourlyCard(item: ForecastModel, index: Int, temperatureUnit: TemperatureUnit) {
     val temperatureSymbol = if (temperatureUnit == TemperatureUnit.FAHRENHEIT) "°F" else "°C"
-    val backgroundColor = if (index == 0) WeatherActiveCard else WeatherSurfaceCard
-    val contentColor = if (index == 0) Color.White else WeatherPrimaryDark
-    val secondaryColor = if (index == 0) Color.White.copy(alpha = 0.8f) else WeatherSecondaryText
+    val backgroundColor = if (index == 0) WeatherActiveCard else MaterialTheme.colorScheme.surface
+    val contentColor = if (index == 0) Color.White else MaterialTheme.colorScheme.onSurface
+    val secondaryColor =
+        if (index == 0) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
 
     Surface(
         modifier = Modifier

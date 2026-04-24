@@ -154,7 +154,7 @@ fun ForecastContent(
                     Modifier
                         .size(34.dp)
                         .clip(CircleShape)
-                        .background(WeatherDivider)
+                        .background(MaterialTheme.colorScheme.surface)
                         .clickable(true) {
                             onBackClick.invoke()
                         }
@@ -162,7 +162,7 @@ fun ForecastContent(
                     Icon(
                         painterResource(R.drawable.ic_back),
                         contentDescription = null,
-                        tint = WeatherPrimaryDark,
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
                             .size(19.dp)
                             .align(Alignment.Center)
@@ -173,7 +173,7 @@ fun ForecastContent(
                     text = stringResource(R.string.five_day_forecast),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = WeatherPrimaryDark
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
 
@@ -182,7 +182,7 @@ fun ForecastContent(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.surface,
                 shadowElevation = 2.dp
             ) {
                 Column(modifier = Modifier.padding(vertical = 8.dp)) {
@@ -190,7 +190,7 @@ fun ForecastContent(
                         DailyForecastRow(index, forecast, temperatureSymbol)
                         if (index < forecasts.lastIndex) {
                             HorizontalDivider(
-                                color = WeatherDivider,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f),
                                 thickness = 0.5.dp,
                                 modifier = Modifier.padding(horizontal = 20.dp)
                             )
@@ -239,12 +239,12 @@ private fun DailyForecastRow(index: Int, forecast: ForecastModel, temperatureSym
                 text = forecast.dayName,
                 fontSize = 14.sp,
                 fontWeight = if (index == 0) FontWeight.Bold else FontWeight.SemiBold,
-                color = WeatherPrimaryDark
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = forecast.dayDate,
                 fontSize = 11.sp,
-                color = WeatherSecondaryText
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
         }
 
@@ -262,7 +262,7 @@ private fun DailyForecastRow(index: Int, forecast: ForecastModel, temperatureSym
             text = forecast.description,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
-            color = WeatherSecondaryText,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
             modifier = Modifier.width(64.dp)
         )
 
@@ -270,7 +270,7 @@ private fun DailyForecastRow(index: Int, forecast: ForecastModel, temperatureSym
             text = "${forecast.minTemperature}$temperatureSymbol",
             fontSize = 13.sp,
             fontWeight = FontWeight.Medium,
-            color = WeatherSecondaryText
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -287,7 +287,7 @@ private fun DailyForecastRow(index: Int, forecast: ForecastModel, temperatureSym
             text = "${forecast.maxTemperature}$temperatureSymbol",
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
-            color = WeatherPrimaryDark
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -301,7 +301,7 @@ private fun TemperatureBar(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(50))
-            .background(WeatherDivider)
+            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f))
     ) {
         Box(
             modifier = Modifier
@@ -335,7 +335,7 @@ private fun InfoCard(
                 shape = RoundedCornerShape(20.dp)
             ),
         shape = RoundedCornerShape(20.dp),
-        color = WeatherSurfaceCard,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 4.dp
     ) {
         Column(
@@ -361,7 +361,7 @@ private fun InfoCard(
                     text = card.label,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
-                    color = WeatherSecondaryText,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                     letterSpacing = 0.8.sp
                 )
             }
@@ -372,7 +372,7 @@ private fun InfoCard(
                 text = card.value,
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
-                color = WeatherPrimaryDark
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -48,7 +49,7 @@ fun MainWeather(weather: WeatherModel, temperatureUnit: TemperatureUnit) {
                     SpanStyle(
                         fontSize = 72.sp,
                         fontWeight = FontWeight.Light,
-                        color = WeatherPrimaryDark
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 ) {
                     append(weather.temp.toString())
@@ -57,7 +58,7 @@ fun MainWeather(weather: WeatherModel, temperatureUnit: TemperatureUnit) {
                     SpanStyle(
                         fontSize = 36.sp,
                         fontWeight = FontWeight.Light,
-                        color = WeatherPrimaryMedium
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
                     )
                 ) {
                     append(unitSymbol)
@@ -71,7 +72,7 @@ fun MainWeather(weather: WeatherModel, temperatureUnit: TemperatureUnit) {
             text = weather.description,
             fontSize = 15.sp,
             fontWeight = FontWeight.Normal,
-            color = WeatherPrimaryMedium,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.75f),
             modifier = Modifier.padding(horizontal = 48.dp),
             textAlign = TextAlign.Center,
             lineHeight = 22.sp

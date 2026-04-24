@@ -218,7 +218,7 @@ fun HomeContent(
                     text = " ${weather.city}, ${weather.country}",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = WeatherPrimaryDark,
+                    color = MaterialTheme.colorScheme.onBackground,
                     letterSpacing = 0.5.sp
                 )
             }
@@ -230,7 +230,7 @@ fun HomeContent(
             Spacer(modifier = Modifier.height(32.dp))
 
             HorizontalDivider(
-                color = WeatherDivider,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.15f),
                 thickness = 1.dp,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
@@ -265,13 +265,13 @@ fun ForecastItem(onNavigateToForecast: () -> Unit = {}) {
                 painter = painterResource(R.drawable.ic_cloud),
                 contentDescription = null,
                 modifier = Modifier.size(16.dp),
-                tint = WeatherSecondaryText
+                tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
             )
             Text(
                 text = "  ${stringResource(R.string.forecast)}",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = WeatherPrimaryDark,
+                color = MaterialTheme.colorScheme.onBackground,
                 letterSpacing = 1.sp
             )
         }
