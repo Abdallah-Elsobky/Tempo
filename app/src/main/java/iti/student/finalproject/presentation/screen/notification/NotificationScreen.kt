@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,10 +52,6 @@ import iti.student.finalproject.presentation.screen.AlertViewModel
 import iti.student.finalproject.presentation.screen.notification.components.AddAlertBottomSheet
 import iti.student.finalproject.ui.theme.WeatherAccentBlue
 import iti.student.finalproject.ui.theme.WeatherAccentRed
-import iti.student.finalproject.ui.theme.WeatherGradientTop
-import iti.student.finalproject.ui.theme.WeatherPrimaryDark
-import iti.student.finalproject.ui.theme.WeatherSecondaryText
-import iti.student.finalproject.ui.theme.WeatherSurfaceCard
 import iti.student.finalproject.ui.theme.WeatherCardBorder
 import iti.student.finalproject.ui.theme.WeatherTeal
 import iti.student.finalproject.ui.theme.WeatherYellow

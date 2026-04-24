@@ -56,11 +56,11 @@
     <string name="alert_sound">Alert Sound</string>
     <string name="play_sound_for_alerts">Play sound for alert notifications</string>
     <string name="rain_alert">Rain Alert</string>
-    <string name="rain_alert_desc">You'll be notified when rain is expected in your area.</string>
+    <string name="rain_alert_desc">You\'ll be notified when rain is expected in your area.</string>
     <string name="storm_alert">Storm Alert</string>
-    <string name="storm_alert_desc">You'll be notified when severe weather or storms are forecast.</string>
+    <string name="storm_alert_desc">You\'ll be notified when severe weather or storms are forecast.</string>
     <string name="temperature_alert">Temperature Alert</string>
-    <string name="temperature_alert_desc">You'll be notified when temperature goes outside your set range.</string>
+    <string name="temperature_alert_desc">You\'ll be notified when temperature goes outside your set range.</string>
     <string name="weather_alert_desc">Scheduled weather notification.</string>
     <string name="alert_type_rain">Rain</string>
     <string name="alert_type_storm">Storm</string>
