@@ -21,10 +21,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,27 +39,25 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import iti.student.finalproject.NotificationPrefs
 import iti.student.finalproject.R
+import iti.student.finalproject.domain.model.AppLanguage
+import iti.student.finalproject.domain.model.AppTheme
+import iti.student.finalproject.domain.model.LocationMode
+import iti.student.finalproject.domain.model.TemperatureUnit
+import iti.student.finalproject.domain.model.WindSpeedUnit
 import iti.student.finalproject.ui.theme.*
 
-@Composable
-fun SettingsScreen() {
-    val context = LocalContext.current
-    val activity = context as? Activity
+private val SettingsContainerBorderAlpha = 0.18f
 
-    var isCelsius by rememberSaveable { mutableStateOf(true) }
-    var isEnglish by rememberSaveable {
-        mutableStateOf(true)
-    }
-    var isLight by rememberSaveable {
-        mutableStateOf(true)
-    }
-    var isKmPerHour by rememberSaveable { mutableStateOf(true) }
-    var isGPS by rememberSaveable { mutableStateOf(true) }
+@Composable
+fun SettingsScreen(settingsViewModel: SettingsViewModel) {
+    val context = LocalContext.current
+    val settings by settingsViewModel.settings.collectAsState()
 
     var notificationsEnabled by rememberSaveable {
         mutableStateOf(NotificationPrefs.areNotificationsEnabled(context))
@@ -69,11 +69,7 @@ fun SettingsScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(WeatherGradientTop, WeatherGradientBottom)
-                )
-            )
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -84,86 +80,100 @@ fun SettingsScreen() {
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Text(
-                text = "Settings",
+                text = stringResource(R.string.settings),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = WeatherPrimaryDark
+                color = MaterialTheme.colorScheme.onBackground
             )
 
-            SettingsSection(title = "Localization") {
+            SettingsSection(title = stringResource(R.string.localization)) {
                 SettingCardItem(
-                    title = "Language",
-                    subtitle = "Choose your language"
+                    title = stringResource(R.string.language),
+                    subtitle = stringResource(R.string.choose_language)
                 ) {
                     SegmentedControl(
                         options = listOf("en", "ar"),
-                        selectedIndex = if (isEnglish) 0 else 1,
+                        selectedIndex = if (settings.language == AppLanguage.ENGLISH) 0 else 1,
                         onOptionSelected = { index ->
-                            val newLang = if (index == 0) "en" else "ar"
-                            isEnglish = newLang == "en"
+                            settingsViewModel.setLanguage(
+                                if (index == 0) AppLanguage.ENGLISH else AppLanguage.ARABIC
+                            )
                         }
                     )
                 }
                 Spacer(modifier = Modifier.height(12.dp))
 
                 SettingCardItem(
-                    title = "Theme",
-                    subtitle = "Choose your Theme"
+                    title = stringResource(R.string.theme),
+                    subtitle = stringResource(R.string.choose_theme)
                 ) {
                     SegmentedControl(
                         options = listOf("light", "dark"),
-                        selectedIndex = if (isLight) 0 else 1,
+                        selectedIndex = if (settings.theme == AppTheme.LIGHT) 0 else 1,
                         onOptionSelected = { index ->
-                            val newTheme = if (index == 0) "light" else "dark"
-                            isLight = newTheme == "light"
+                            settingsViewModel.setTheme(
+                                if (index == 0) AppTheme.LIGHT else AppTheme.DARK
+                            )
                         }
                     )
                 }
             }
 
-            SettingsSection(title = "UNITS") {
+            SettingsSection(title = stringResource(R.string.units)) {
                 SettingCardItem(
-                    title = "Temperature",
-                    subtitle = "Choose your unit"
+                    title = stringResource(R.string.temperature),
+                    subtitle = stringResource(R.string.choose_unit)
                 ) {
                     SegmentedControl(
                         options = listOf("°C", "°F"),
-                        selectedIndex = if (isCelsius) 0 else 1,
-                        onOptionSelected = { index -> isCelsius = index == 0 }
+                        selectedIndex = if (settings.temperatureUnit == TemperatureUnit.CELSIUS) 0 else 1,
+                        onOptionSelected = { index ->
+                            settingsViewModel.setTemperatureUnit(
+                                if (index == 0) TemperatureUnit.CELSIUS else TemperatureUnit.FAHRENHEIT
+                            )
+                        }
                     )
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 SettingCardItem(
-                    title = "Wind Speed",
-                    subtitle = "Display speed in unit"
+                    title = stringResource(R.string.wind_speed),
+                    subtitle = stringResource(R.string.display_speed_in_unit)
                 ) {
                     SegmentedControl(
                         options = listOf("km/h", "mph"),
-                        selectedIndex = if (isKmPerHour) 0 else 1,
-                        onOptionSelected = { index -> isKmPerHour = index == 0 }
+                        selectedIndex = if (settings.windSpeedUnit == WindSpeedUnit.KMH) 0 else 1,
+                        onOptionSelected = { index ->
+                            settingsViewModel.setWindSpeedUnit(
+                                if (index == 0) WindSpeedUnit.KMH else WindSpeedUnit.MPH
+                            )
+                        }
                     )
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 SettingCardItem(
-                    title = "Location",
-                    subtitle = "Get location method"
+                    title = stringResource(R.string.location),
+                    subtitle = stringResource(R.string.get_location_method)
                 ) {
                     SegmentedControl(
                         options = listOf("GPS", "MAP"),
-                        selectedIndex = if (isGPS) 0 else 1,
-                        onOptionSelected = { index -> isGPS = index == 0 }
+                        selectedIndex = if (settings.locationMode == LocationMode.GPS) 0 else 1,
+                        onOptionSelected = { index ->
+                            settingsViewModel.setLocationMode(
+                                if (index == 0) LocationMode.GPS else LocationMode.MAP
+                            )
+                        }
                     )
                 }
             }
 
-            SettingsSection(title = "NOTIFICATIONS") {
+            SettingsSection(title = stringResource(R.string.notifications_section)) {
                 ToggleSettingRow(
-                    title = "Enable Notifications",
-                    subtitle = "Stay informed about weather",
+                    title = stringResource(R.string.enable_notifications),
+                    subtitle = stringResource(R.string.stay_informed_weather),
                     checked = notificationsEnabled,
                     onCheckedChange = {
                         notificationsEnabled = it
@@ -181,8 +191,8 @@ fun SettingsScreen() {
                 )
 
                 ToggleSettingRow(
-                    title = "Alert Sound",
-                    subtitle = "Play sound for alert notifications",
+                    title = stringResource(R.string.alert_sound),
+                    subtitle = stringResource(R.string.play_sound_for_alerts),
                     checked = soundAlertsEnabled && notificationsEnabled,
                     enabled = notificationsEnabled,
                     onCheckedChange = {
@@ -209,7 +219,7 @@ private fun SettingsSection(
             text = title,
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold,
-            color = WeatherSecondaryText,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
             letterSpacing = 1.2.sp
         )
 
@@ -219,10 +229,10 @@ private fun SettingsSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(24.dp))
-                .background(WeatherSurfaceCard)
+                .background(MaterialTheme.colorScheme.surface)
                 .border(
                     width = 1.dp,
-                    color = WeatherCardBorder,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = SettingsContainerBorderAlpha),
                     shape = RoundedCornerShape(24.dp)
                 )
                 .padding(vertical = 14.dp)
@@ -252,13 +262,13 @@ private fun SettingCardItem(
                 text = title,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = WeatherPrimaryDark
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = subtitle,
                 fontSize = 12.sp,
-                color = WeatherSecondaryText
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
         }
 
@@ -282,10 +292,10 @@ private fun SegmentedControl(
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(WeatherDivider.copy(alpha = 0.4f))
+            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
             .border(
                 width = 1.dp,
-                color = WeatherCardBorder,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = SettingsContainerBorderAlpha),
                 shape = RoundedCornerShape(20.dp)
             )
     ) {
@@ -305,7 +315,7 @@ private fun SegmentedControl(
                     text = option,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
-                    color = if (isSelected) Color.White else WeatherPrimaryDark
+                    color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -358,13 +368,13 @@ private fun ToggleSettingRow(
                     text = title,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = WeatherPrimaryDark.copy(alpha = effectiveAlpha)
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = effectiveAlpha)
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = subtitle,
                     fontSize = 12.sp,
-                    color = WeatherSecondaryText.copy(alpha = effectiveAlpha)
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = effectiveAlpha * 0.7f)
                 )
             }
         }

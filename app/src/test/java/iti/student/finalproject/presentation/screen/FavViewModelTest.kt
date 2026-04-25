@@ -37,17 +37,20 @@ class FavViewModelTest {
             favoritesFlow.value = favoritesFlow.value.filterNot { it == location }
         }
 
-        // Unused in these tests
         override suspend fun getWeather(
             lat: Double,
-            lon: Double
+            lon: Double,
+            language: String,
+            units: String
         ): Flow<ResultState<iti.student.finalproject.data.remote.dto.WeatherResponseDto>> {
             throw NotImplementedError()
         }
 
         override suspend fun getHourlyForecast(
             lat: Double,
-            lon: Double
+            lon: Double,
+            language: String,
+            units: String
         ): Flow<ResultState<iti.student.finalproject.data.remote.dto.HourlyForecastResponseDto>> {
             throw NotImplementedError()
         }

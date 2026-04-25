@@ -32,6 +32,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -48,12 +49,15 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 import iti.student.finalproject.R
+import iti.student.finalproject.domain.model.AppSettings
+import iti.student.finalproject.domain.model.LocationMode
 import iti.student.finalproject.domain.model.ForecastModel
 import iti.student.finalproject.domain.model.WeatherModel
 import iti.student.finalproject.presentation.components.HourlyForecast
@@ -68,6 +72,7 @@ import iti.student.finalproject.utils.ResultState
 @Composable
 fun HomeScreen(
     viewModel: WeatherViewModel,
+    settings: AppSettings,
     onNavigateToForecast: (lon: Float, lat: Float) -> Unit
 ) {
     val context = LocalContext.current
@@ -79,22 +84,37 @@ fun HomeScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            requestCurrentLocationAndLoadWeather(viewModel, context)
+            requestCurrentLocationAndLoadWeather(viewModel, context, settings)
         } else {
             showPermissionSettingsDialog = true
         }
     }
 
-    LaunchedEffect(Unit) {
-        val granted = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (granted) {
-            requestCurrentLocationAndLoadWeather(viewModel, context)
+    LaunchedEffect(settings.locationMode, settings.language, settings.apiUnits) {
+        if (settings.locationMode == LocationMode.MAP) {
+            viewModel.loadWeather(
+                settings.mapLatitude,
+                settings.mapLongitude,
+                settings.language.code,
+                settings.apiUnits
+            )
+            viewModel.loadForecast(
+                settings.mapLatitude,
+                settings.mapLongitude,
+                settings.language.code,
+                settings.apiUnits
+            )
         } else {
-            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            val granted = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (granted) {
+                requestCurrentLocationAndLoadWeather(viewModel, context, settings)
+            } else {
+                permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
         }
     }
 
@@ -127,6 +147,7 @@ fun HomeScreen(
             HomeContent(
                 weather,
                 forecast,
+                settings,
                 { onNavigateToForecast(weather.lon, weather.lat) }
             )
         }
@@ -135,10 +156,10 @@ fun HomeScreen(
     if (showPermissionSettingsDialog && activity != null) {
         AlertDialog(
             onDismissRequest = { showPermissionSettingsDialog = false },
-            title = { Text("Location permission needed") },
+            title = { Text(stringResource(R.string.location_permission_needed)) },
             text = {
                 Text(
-                    "Please enable location permission in Settings to show weather for your current location."
+                    stringResource(R.string.location_permission_message)
                 )
             },
             confirmButton = {
@@ -149,12 +170,12 @@ fun HomeScreen(
                     }
                     activity.startActivity(intent)
                 }) {
-                    Text("Open Settings")
+                    Text(stringResource(R.string.open_settings))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showPermissionSettingsDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -165,14 +186,14 @@ fun HomeScreen(
 fun HomeContent(
     weather: WeatherModel,
     forecast: List<ForecastModel>,
+    settings: AppSettings,
     onNavigateToForecast: () -> Unit = {}
 ) {
     Log.d("loco", forecast.toString())
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(WeatherGradientTop
-            )
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -197,26 +218,26 @@ fun HomeContent(
                     text = " ${weather.city}, ${weather.country}",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = WeatherPrimaryDark,
+                    color = MaterialTheme.colorScheme.onBackground,
                     letterSpacing = 0.5.sp
                 )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            MainWeather(weather)
+            MainWeather(weather, settings.temperatureUnit)
 
             Spacer(modifier = Modifier.height(32.dp))
 
             HorizontalDivider(
-                color = WeatherDivider,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.15f),
                 thickness = 1.dp,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            WeatherDetails(weather)
+            WeatherDetails(weather, settings.windSpeedUnit)
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -224,7 +245,7 @@ fun HomeContent(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            HourlyForecast(forecast)
+            HourlyForecast(forecast, settings.temperatureUnit)
 
             Spacer(modifier = Modifier.height(24.dp))
         }
@@ -244,18 +265,18 @@ fun ForecastItem(onNavigateToForecast: () -> Unit = {}) {
                 painter = painterResource(R.drawable.ic_cloud),
                 contentDescription = null,
                 modifier = Modifier.size(16.dp),
-                tint = WeatherSecondaryText
+                tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
             )
             Text(
-                text = "  Forecast",
+                text = "  ${stringResource(R.string.forecast)}",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = WeatherPrimaryDark,
+                color = MaterialTheme.colorScheme.onBackground,
                 letterSpacing = 1.sp
             )
         }
         Text(
-            text = "5 DAYS",
+            text = stringResource(R.string.five_day_forecast),
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             color = WeatherAccentBlue,
@@ -276,7 +297,8 @@ fun ForecastItem(onNavigateToForecast: () -> Unit = {}) {
 @RequiresApi(Build.VERSION_CODES.O)
 private fun requestCurrentLocationAndLoadWeather(
     viewModel: WeatherViewModel,
-    context: Context
+    context: Context,
+    settings: AppSettings
 ) {
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     try {
@@ -285,16 +307,16 @@ private fun requestCurrentLocationAndLoadWeather(
                 if (location != null) {
                     val lat = location.latitude
                     val lon = location.longitude
-                    viewModel.loadWeather(lat, lon)
-                    viewModel.loadForecast(lat, lon)
+                    viewModel.loadWeather(lat, lon, settings.language.code, settings.apiUnits)
+                    viewModel.loadForecast(lat, lon, settings.language.code, settings.apiUnits)
                 } else {
-                    viewModel.loadWeather(35.0, 39.0)
-                    viewModel.loadForecast(35.0, 39.0)
+                    viewModel.loadWeather(35.0, 39.0, settings.language.code, settings.apiUnits)
+                    viewModel.loadForecast(35.0, 39.0, settings.language.code, settings.apiUnits)
                 }
             }
             .addOnFailureListener {
-                viewModel.loadWeather(35.0, 39.0)
-                viewModel.loadForecast(35.0, 39.0)
+                viewModel.loadWeather(35.0, 39.0, settings.language.code, settings.apiUnits)
+                viewModel.loadForecast(35.0, 39.0, settings.language.code, settings.apiUnits)
             }
     } catch (e: SecurityException) {
 

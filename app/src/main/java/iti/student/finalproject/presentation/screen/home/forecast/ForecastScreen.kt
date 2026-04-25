@@ -23,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,12 +36,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import iti.student.finalproject.R
+import iti.student.finalproject.domain.model.AppSettings
 import iti.student.finalproject.domain.model.ForecastModel
+import iti.student.finalproject.domain.model.TemperatureUnit
+import iti.student.finalproject.domain.model.WindSpeedUnit
 import iti.student.finalproject.presentation.screen.WeatherViewModel
 import iti.student.finalproject.ui.theme.*
 import iti.student.finalproject.utils.NumberUtils.roundTo
@@ -56,13 +61,37 @@ data class WeatherInfoCard(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ForecastScreen(lon: Float, lat: Float, viewModel: WeatherViewModel, onBackClick: () -> Unit) {
+fun ForecastScreen(
+    lon: Float,
+    lat: Float,
+    viewModel: WeatherViewModel,
+    settings: AppSettings,
+    onBackClick: () -> Unit
+) {
     val infoCards = listOf(
-        WeatherInfoCard("WIND", "10 mi", "Good visibility", R.drawable.ic_wind, WeatherAccentBlue),
-        WeatherInfoCard("HUMIDITY", "4", "Moderate", R.drawable.ic_drop_water, WeatherTeal),
-        WeatherInfoCard("CLOUD", "56°", "Comfortable", R.drawable.ic_cloud, WeatherPrimaryMedium),
         WeatherInfoCard(
-            "PRESSURE",
+            stringResource(R.string.forecast_wind_label),
+            "10 mi",
+            "Good visibility",
+            R.drawable.ic_wind,
+            WeatherAccentBlue
+        ),
+        WeatherInfoCard(
+            stringResource(R.string.forecast_humidity_label),
+            "4",
+            "Moderate",
+            R.drawable.ic_drop_water,
+            WeatherTeal
+        ),
+        WeatherInfoCard(
+            stringResource(R.string.forecast_cloud_label),
+            "56°",
+            "Comfortable",
+            R.drawable.ic_cloud,
+            WeatherPrimaryMedium
+        ),
+        WeatherInfoCard(
+            stringResource(R.string.forecast_pressure_label),
             "1015 hPa",
             "Falling slightly",
             R.drawable.ic_pressure,
@@ -70,8 +99,8 @@ fun ForecastScreen(lon: Float, lat: Float, viewModel: WeatherViewModel, onBackCl
         ),
     )
 
-    LaunchedEffect(lat, lon) {
-        viewModel.loadForecast(lat.toDouble(), lon.toDouble())
+    LaunchedEffect(lat, lon, settings.language, settings.apiUnits) {
+        viewModel.loadForecast(lat.toDouble(), lon.toDouble(), settings.language.code, settings.apiUnits)
     }
 
     val forecastState by viewModel.forecastState.collectAsState()
@@ -96,6 +125,7 @@ fun ForecastScreen(lon: Float, lat: Float, viewModel: WeatherViewModel, onBackCl
             ForecastContent(
                 forecastState as ResultState.Success<List<ForecastModel>>,
                 infoCards,
+                settings,
                 onBackClick
             )
         }
@@ -107,20 +137,25 @@ fun ForecastScreen(lon: Float, lat: Float, viewModel: WeatherViewModel, onBackCl
 fun ForecastContent(
     forecastState: ResultState.Success<List<ForecastModel>>,
     infoCards: List<WeatherInfoCard>,
+    settings: AppSettings,
     onBackClick: () -> Unit
 ) {
 
     val forecasts = forecastState.data.filter { it.dayTime == "12 AM" }
-    infoCards.get(0).value = "${roundTo(forecasts.get(0).windSpeed, 1)} km/h"
+    val windValue = if (settings.windSpeedUnit == WindSpeedUnit.KMH) {
+        "${roundTo(forecasts.get(0).windSpeed * 3.6f, 1)} km/h"
+    } else {
+        "${roundTo(forecasts.get(0).windSpeed, 1)} mph"
+    }
+    val temperatureSymbol = if (settings.temperatureUnit == TemperatureUnit.FAHRENHEIT) "°F" else "°C"
+    infoCards.get(0).value = windValue
     infoCards.get(1).value = "${forecasts.get(0).humidity} %"
     infoCards.get(2).value = "${forecasts.get(0).clouds} %"
     infoCards.get(3).value = "${forecasts.get(0).pressure} hPa"
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                WeatherGradientTop
-            )
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -137,7 +172,7 @@ fun ForecastContent(
                     Modifier
                         .size(34.dp)
                         .clip(CircleShape)
-                        .background(WeatherDivider)
+                        .background(MaterialTheme.colorScheme.surface)
                         .clickable(true) {
                             onBackClick.invoke()
                         }
@@ -145,7 +180,7 @@ fun ForecastContent(
                     Icon(
                         painterResource(R.drawable.ic_back),
                         contentDescription = null,
-                        tint = WeatherPrimaryDark,
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
                             .size(19.dp)
                             .align(Alignment.Center)
@@ -153,10 +188,10 @@ fun ForecastContent(
                 }
                 Text(
                     modifier = Modifier.weight(2f),
-                    text = "5-Day Forecast",
+                    text = stringResource(R.string.five_day_forecast),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = WeatherPrimaryDark
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
 
@@ -165,15 +200,15 @@ fun ForecastContent(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.surface,
                 shadowElevation = 2.dp
             ) {
                 Column(modifier = Modifier.padding(vertical = 8.dp)) {
                     forecasts.forEachIndexed { index, forecast ->
-                        DailyForecastRow(index, forecast)
+                        DailyForecastRow(index, forecast, temperatureSymbol)
                         if (index < forecasts.lastIndex) {
                             HorizontalDivider(
-                                color = WeatherDivider,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f),
                                 thickness = 0.5.dp,
                                 modifier = Modifier.padding(horizontal = 20.dp)
                             )
@@ -210,7 +245,7 @@ fun ForecastContent(
 }
 
 @Composable
-private fun DailyForecastRow(index: Int, forecast: ForecastModel) {
+private fun DailyForecastRow(index: Int, forecast: ForecastModel, temperatureSymbol: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -222,12 +257,12 @@ private fun DailyForecastRow(index: Int, forecast: ForecastModel) {
                 text = forecast.dayName,
                 fontSize = 14.sp,
                 fontWeight = if (index == 0) FontWeight.Bold else FontWeight.SemiBold,
-                color = WeatherPrimaryDark
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = forecast.dayDate,
                 fontSize = 11.sp,
-                color = WeatherSecondaryText
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
         }
 
@@ -245,15 +280,15 @@ private fun DailyForecastRow(index: Int, forecast: ForecastModel) {
             text = forecast.description,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
-            color = WeatherSecondaryText,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
             modifier = Modifier.width(64.dp)
         )
 
         Text(
-            text = "${forecast.minTemperature}°",
+            text = "${forecast.minTemperature}$temperatureSymbol",
             fontSize = 13.sp,
             fontWeight = FontWeight.Medium,
-            color = WeatherSecondaryText
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -267,10 +302,10 @@ private fun DailyForecastRow(index: Int, forecast: ForecastModel) {
         Spacer(modifier = Modifier.width(8.dp))
 
         Text(
-            text = "${forecast.maxTemperature}°",
+            text = "${forecast.maxTemperature}$temperatureSymbol",
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
-            color = WeatherPrimaryDark
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -284,7 +319,7 @@ private fun TemperatureBar(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(50))
-            .background(WeatherDivider)
+            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f))
     ) {
         Box(
             modifier = Modifier
@@ -318,7 +353,7 @@ private fun InfoCard(
                 shape = RoundedCornerShape(20.dp)
             ),
         shape = RoundedCornerShape(20.dp),
-        color = WeatherSurfaceCard,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 4.dp
     ) {
         Column(
@@ -344,7 +379,7 @@ private fun InfoCard(
                     text = card.label,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
-                    color = WeatherSecondaryText,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                     letterSpacing = 0.8.sp
                 )
             }
@@ -355,7 +390,7 @@ private fun InfoCard(
                 text = card.value,
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
-                color = WeatherPrimaryDark
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }

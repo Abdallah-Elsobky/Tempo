@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,10 +24,12 @@ import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import iti.student.finalproject.R
 import iti.student.finalproject.domain.model.WeatherModel
+import iti.student.finalproject.domain.model.TemperatureUnit
 import iti.student.finalproject.ui.theme.*
 
 @Composable
-fun MainWeather(weather: WeatherModel) {
+fun MainWeather(weather: WeatherModel, temperatureUnit: TemperatureUnit) {
+    val unitSymbol = if (temperatureUnit == TemperatureUnit.FAHRENHEIT) "°F" else "°C"
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -46,7 +49,7 @@ fun MainWeather(weather: WeatherModel) {
                     SpanStyle(
                         fontSize = 72.sp,
                         fontWeight = FontWeight.Light,
-                        color = WeatherPrimaryDark
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 ) {
                     append(weather.temp.toString())
@@ -55,10 +58,10 @@ fun MainWeather(weather: WeatherModel) {
                     SpanStyle(
                         fontSize = 36.sp,
                         fontWeight = FontWeight.Light,
-                        color = WeatherPrimaryMedium
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
                     )
                 ) {
-                    append("°C")
+                    append(unitSymbol)
                 }
             }
         )
@@ -69,7 +72,7 @@ fun MainWeather(weather: WeatherModel) {
             text = weather.description,
             fontSize = 15.sp,
             fontWeight = FontWeight.Normal,
-            color = WeatherPrimaryMedium,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.75f),
             modifier = Modifier.padding(horizontal = 48.dp),
             textAlign = TextAlign.Center,
             lineHeight = 22.sp

@@ -38,7 +38,9 @@ class WeatherViewModelTest {
 
         override suspend fun getWeather(
             lat: Double,
-            lon: Double
+            lon: Double,
+            language: String,
+            units: String
         ): Flow<ResultState<WeatherResponseDto>> {
             weatherCallCount++
             lastWeatherLat = lat
@@ -80,7 +82,9 @@ class WeatherViewModelTest {
 
         override suspend fun getHourlyForecast(
             lat: Double,
-            lon: Double
+            lon: Double,
+            language: String,
+            units: String
         ): Flow<ResultState<HourlyForecastResponseDto>> {
             val coord = Coord(lon = lon.toFloat(), lat = lat.toFloat())
             val dto = HourlyForecastResponseDto(

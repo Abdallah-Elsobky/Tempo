@@ -53,8 +53,12 @@ class WeatherViewModel(
         if (lastWeatherLat == lat && lastWeatherLon == lon) return
         lastWeatherLat = lat
         lastWeatherLon = lon
+        loadWeather(lat, lon, "en", "metric")
+    }
+
+    fun loadWeather(lat: Double, lon: Double, language: String, units: String) {
         viewModelScope.launch {
-            repository.getWeather(lat, lon).collect {
+            repository.getWeather(lat, lon, language, units).collect {
                 _weatherState.value =
                     ResultStateMapper(::weatherToDomain)
                         .map(it)
@@ -67,8 +71,13 @@ class WeatherViewModel(
         if (lastForecastLat == lat && lastForecastLon == lon) return
         lastForecastLat = lat
         lastForecastLon = lon
+        loadForecast(lat, lon, "en", "metric")
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun loadForecast(lat: Double, lon: Double, language: String, units: String) {
         viewModelScope.launch {
-            repository.getHourlyForecast(lat, lon).collect {
+            repository.getHourlyForecast(lat, lon, language, units).collect {
                 _forecastState.value = ResultStateMapper(::forecastToDomain)
                     .map(it)
             }

@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,25 +27,28 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import iti.student.finalproject.R
 import iti.student.finalproject.domain.model.ForecastModel
+import iti.student.finalproject.domain.model.TemperatureUnit
 import iti.student.finalproject.ui.theme.*
 
 @Composable
-fun HourlyForecast(forecast: List<ForecastModel>) {
+fun HourlyForecast(forecast: List<ForecastModel>, temperatureUnit: TemperatureUnit) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         contentPadding = PaddingValues(horizontal = 4.dp)
     ) {
         itemsIndexed(forecast.take(8)) { index, item ->
-            HourlyCard(item, index)
+            HourlyCard(item, index, temperatureUnit)
         }
     }
 }
 
 @Composable
-private fun HourlyCard(item: ForecastModel, index: Int) {
-    val backgroundColor = if (index == 0) WeatherActiveCard else WeatherSurfaceCard
-    val contentColor = if (index == 0) Color.White else WeatherPrimaryDark
-    val secondaryColor = if (index == 0) Color.White.copy(alpha = 0.8f) else WeatherSecondaryText
+private fun HourlyCard(item: ForecastModel, index: Int, temperatureUnit: TemperatureUnit) {
+    val temperatureSymbol = if (temperatureUnit == TemperatureUnit.FAHRENHEIT) "°F" else "°C"
+    val backgroundColor = if (index == 0) WeatherActiveCard else MaterialTheme.colorScheme.surface
+    val contentColor = if (index == 0) Color.White else MaterialTheme.colorScheme.onSurface
+    val secondaryColor =
+        if (index == 0) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
 
     Surface(
         modifier = Modifier
@@ -83,7 +87,7 @@ private fun HourlyCard(item: ForecastModel, index: Int) {
             Spacer(modifier = Modifier.height(18.dp))
 
             Text(
-                text = "${item.temperature}°",
+                text = "${item.temperature}$temperatureSymbol",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = contentColor

@@ -7,9 +7,19 @@ import retrofit2.Response
 
 
 interface WeatherRemoteDataSource {
-    suspend fun getWeather(lat: Double, lon: Double): WeatherResponseDto
+    suspend fun getWeather(
+        lat: Double,
+        lon: Double,
+        language: String,
+        units: String
+    ): WeatherResponseDto
 
-    suspend fun getHourlyForecast(lat: Double, lon: Double): HourlyForecastResponseDto
+    suspend fun getHourlyForecast(
+        lat: Double,
+        lon: Double,
+        language: String,
+        units: String
+    ): HourlyForecastResponseDto
 
     suspend fun getPossibleCities(cityName: String): List<CityDto>
 

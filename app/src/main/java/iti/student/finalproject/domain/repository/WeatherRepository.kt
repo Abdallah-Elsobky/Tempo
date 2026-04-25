@@ -8,8 +8,19 @@ import iti.student.finalproject.utils.ResultState
 import kotlinx.coroutines.flow.Flow
 
 interface WeatherRepository {
-    suspend fun getWeather(lat: Double, lon: Double): Flow<ResultState<WeatherResponseDto>>
-    suspend fun getHourlyForecast(lat: Double, lon: Double): Flow<ResultState<HourlyForecastResponseDto>>
+    suspend fun getWeather(
+        lat: Double,
+        lon: Double,
+        language: String,
+        units: String
+    ): Flow<ResultState<WeatherResponseDto>>
+
+    suspend fun getHourlyForecast(
+        lat: Double,
+        lon: Double,
+        language: String,
+        units: String
+    ): Flow<ResultState<HourlyForecastResponseDto>>
     suspend fun getPossibleCities(cityName: String): Flow<ResultState<List<CityDto>>>
     suspend fun getCityNamesLocalized(lat: Double, lon: Double): Flow<ResultState<List<String>>>
 

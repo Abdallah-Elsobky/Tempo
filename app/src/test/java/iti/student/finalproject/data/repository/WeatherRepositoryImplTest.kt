@@ -34,7 +34,12 @@ class WeatherRepositoryImplTest {
     private class FakeRemoteDataSource : WeatherRemoteDataSource {
         var shouldThrow = false
 
-        override suspend fun getWeather(lat: Double, lon: Double): WeatherResponseDto {
+        override suspend fun getWeather(
+            lat: Double,
+            lon: Double,
+            language: String,
+            units: String
+        ): WeatherResponseDto {
             if (shouldThrow) throw RuntimeException("Error")
             return WeatherResponseDto(
                 visibility = 10_000,
@@ -70,7 +75,12 @@ class WeatherRepositoryImplTest {
             )
         }
 
-        override suspend fun getHourlyForecast(lat: Double, lon: Double): HourlyForecastResponseDto {
+        override suspend fun getHourlyForecast(
+            lat: Double,
+            lon: Double,
+            language: String,
+            units: String
+        ): HourlyForecastResponseDto {
             if (shouldThrow) throw RuntimeException("Error")
             val coord = Coord(lon = lon.toFloat(), lat = lat.toFloat())
             return HourlyForecastResponseDto(
@@ -172,7 +182,7 @@ class WeatherRepositoryImplTest {
     fun `getWeather emits loading then success`() = runTest {
         val repo = WeatherRepositoryImpl(FakeRemoteDataSource(), FakeLocalDataSource())
 
-        val emissions = repo.getWeather(0.0, 0.0).take(2).toList()
+        val emissions = repo.getWeather(0.0, 0.0, "en", "metric").take(2).toList()
 
         assertTrue(emissions.first() is ResultState.Loading)
         assertTrue(emissions.last() is ResultState.Success)
@@ -183,7 +193,7 @@ class WeatherRepositoryImplTest {
         val remote = FakeRemoteDataSource().apply { shouldThrow = true }
         val repo = WeatherRepositoryImpl(remote, FakeLocalDataSource())
 
-        val emissions = repo.getHourlyForecast(0.0, 0.0).take(2).toList()
+        val emissions = repo.getHourlyForecast(0.0, 0.0, "en", "metric").take(2).toList()
 
         assertTrue(emissions.first() is ResultState.Loading)
         assertTrue(emissions.last() is ResultState.Error)

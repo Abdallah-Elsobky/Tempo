@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,16 +24,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import iti.student.finalproject.R
 import iti.student.finalproject.domain.model.WeatherModel
+import iti.student.finalproject.domain.model.WindSpeedUnit
 import iti.student.finalproject.ui.theme.*
+import iti.student.finalproject.utils.NumberUtils.roundTo
 
 @Composable
-fun WeatherDetails(weather: WeatherModel) {
+fun WeatherDetails(weather: WeatherModel, windSpeedUnit: WindSpeedUnit) {
+    val windValue = when (windSpeedUnit) {
+        WindSpeedUnit.KMH -> "${roundTo(weather.windSpeed * 3.6f, 1)} km/h"
+        WindSpeedUnit.MPH -> "${roundTo(weather.windSpeed, 1)} mph"
+    }
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier.fillMaxWidth()
     ) {
         WeatherDetailItem(
-            value = "${weather.windSpeed} km/h",
+            value = windValue,
             iconRes = R.drawable.ic_wind,
             iconTint = WeatherAccentBlue
         )
@@ -80,7 +87,7 @@ private fun WeatherDetailItem(
             text = value,
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
-            color = WeatherPrimaryDark
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

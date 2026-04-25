@@ -30,6 +30,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -45,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -72,7 +74,7 @@ fun FavoritesScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(WeatherGradientTop)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -83,10 +85,10 @@ fun FavoritesScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Text(
-                text = "Favorites",
+                text = stringResource(R.string.favorites),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = WeatherPrimaryDark
+                color = MaterialTheme.colorScheme.onBackground
             )
             favState.forEach { favLocation ->
                 LocationItemCard(
@@ -132,7 +134,7 @@ fun LocationItemCard(
             .fillMaxWidth()
             .height(95.dp),
         shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = WeatherSurfaceCard),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
@@ -161,7 +163,7 @@ fun LocationItemCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(favLocation.country, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                Text(favLocation.name, fontSize = 13.sp, color = WeatherSecondaryText)
+                Text(favLocation.name, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
             }
 
             Text("${favLocation.temp}°", fontWeight = FontWeight.Bold, fontSize = 20.sp)
@@ -171,7 +173,7 @@ fun LocationItemCard(
             IconButton(onClick = { showDialog = true }) {
                 Icon(
                     painter = painterResource(R.drawable.ic_delete),
-                    contentDescription = "delete",
+                    contentDescription = stringResource(R.string.delete_icon_desc),
                     tint = Color.Red
                 )
             }
@@ -197,7 +199,7 @@ fun DeleteFavoriteDialog(
     Dialog(onDismissRequest = { onDismiss() }) {
         Card(
             shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = WeatherSurfaceCard),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -218,18 +220,18 @@ fun DeleteFavoriteDialog(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Delete Favorite?",
+                    text = stringResource(R.string.delete_favorite),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = WeatherPrimaryDark
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Are you sure you want to remove ${favLocation.name} from favorites?",
+                    text = stringResource(R.string.delete_favorite_message, favLocation.name),
                     fontSize = 14.sp,
-                    color = WeatherSecondaryText,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                     textAlign = TextAlign.Center
                 )
 
@@ -247,19 +249,19 @@ fun DeleteFavoriteDialog(
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Delete")
+                        Text(stringResource(R.string.delete))
                     }
 
                     OutlinedButton(
                         onClick = { onDismiss() },
                         colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = WeatherPrimaryDark
+                            contentColor = MaterialTheme.colorScheme.onSurface
                         ),
                         border = BorderStroke(1.dp, Color.Gray),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             }

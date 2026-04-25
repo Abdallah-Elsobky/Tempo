@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -94,8 +95,8 @@ class AlertRingingActivity : ComponentActivity() {
         setContent {
             FinalProjectTheme(dynamicColor = false) {
                 AlarmScreen(
-                    title = if (title.isNotBlank()) title else "Weather Alert",
-                    body = if (body.isNotBlank()) body else "Alert time is active.",
+                    title = if (title.isNotBlank()) title else getString(R.string.weather_alert),
+                    body = if (body.isNotBlank()) body else getString(R.string.alert_time_active),
                     onSnooze = {
                         stopSound()
                         snoozeAlert(alertId, alertType, title, body)
@@ -243,7 +244,7 @@ private fun AlarmScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = WeatherAccentBlue),
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Snooze", color = Color.White, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.snooze), color = Color.White, fontWeight = FontWeight.SemiBold)
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Button(
@@ -252,7 +253,7 @@ private fun AlarmScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = WeatherAccentRed),
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Dismiss", color = Color.White, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.dismiss), color = Color.White, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
