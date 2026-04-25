@@ -14,6 +14,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import iti.student.finalproject.NotificationPrefs
 import iti.student.finalproject.R
+import iti.student.finalproject.MainActivity
 import iti.student.finalproject.presentation.alarm.AlertRingingActivity
 import iti.student.finalproject.presentation.screen.notification.AlertType
 
@@ -75,6 +76,16 @@ class AlertNotificationWorker(
 
     private fun showNotification(alertId: Int, title: String, body: String, soundEnabled: Boolean) {
         val channelId = if (soundEnabled) CHANNEL_ID_SOUND else CHANNEL_ID_SILENT
+        val openForecastIntent = Intent(applicationContext, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra(MainActivity.EXTRA_OPEN_FORECAST, true)
+        }
+        val contentPending = android.app.PendingIntent.getActivity(
+            applicationContext,
+            alertId + 30_000,
+            openForecastIntent,
+            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+        )
         val builder = NotificationCompat.Builder(applicationContext, channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
@@ -82,6 +93,7 @@ class AlertNotificationWorker(
             .setPriority(if (soundEnabled) NotificationCompat.PRIORITY_HIGH else NotificationCompat.PRIORITY_DEFAULT)
             .setDefaults(if (soundEnabled) Notification.DEFAULT_VIBRATE else 0)
             .setAutoCancel(true)
+            .setContentIntent(contentPending)
         if (soundEnabled && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             builder.setSound(soundUri())
         }
@@ -94,6 +106,10 @@ class AlertNotificationWorker(
     }
 
     private fun showAlarmNotification(alertId: Int, alertType: String, title: String, body: String) {
+        val openForecastIntent = Intent(applicationContext, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra(MainActivity.EXTRA_OPEN_FORECAST, true)
+        }
         val openIntent = Intent(applicationContext, AlertRingingActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra(AlertRingingActivity.EXTRA_ALERT_ID, alertId)
@@ -123,6 +139,12 @@ class AlertNotificationWorker(
         val contentPending = android.app.PendingIntent.getActivity(
             applicationContext,
             alertId,
+            openForecastIntent,
+            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+        )
+        val fullScreenPending = android.app.PendingIntent.getActivity(
+            applicationContext,
+            alertId + 1_000,
             openIntent,
             android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
         )
@@ -148,7 +170,7 @@ class AlertNotificationWorker(
             .setOngoing(true)
             .setAutoCancel(false)
             .setContentIntent(contentPending)
-            .setFullScreenIntent(contentPending, true)
+            .setFullScreenIntent(fullScreenPending, true)
             .addAction(0, "Snooze", snoozePending)
             .addAction(0, "Dismiss", dismissPending)
             .build()

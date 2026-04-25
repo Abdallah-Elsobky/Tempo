@@ -1,6 +1,7 @@
 package iti.student.finalproject
 
 import android.Manifest
+import android.content.Intent
 import android.content.res.Configuration as AndroidConfiguration
 import android.os.Build
 import android.os.Bundle
@@ -20,6 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.os.LocaleListCompat
@@ -53,9 +56,12 @@ import java.util.Locale
 
 
 class MainActivity : ComponentActivity() {
+    private var shouldOpenForecastFromNotification by mutableStateOf(false)
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        shouldOpenForecastFromNotification = intent.getBooleanExtra(EXTRA_OPEN_FORECAST, false)
         enableEdgeToEdge()
 
 
@@ -125,7 +131,12 @@ class MainActivity : ComponentActivity() {
                             weatherViewModel,
                             favViewModel,
                             alertViewModel,
-                            settingsViewModel
+                            settingsViewModel,
+                            shouldOpenForecastFromNotification = shouldOpenForecastFromNotification,
+                            onNotificationNavigationHandled = {
+                                shouldOpenForecastFromNotification = false
+                                intent.removeExtra(EXTRA_OPEN_FORECAST)
+                            }
                         )
                         // test view model
 //                        when (val state = possibleCitiesState) {
@@ -148,6 +159,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        shouldOpenForecastFromNotification = intent.getBooleanExtra(EXTRA_OPEN_FORECAST, false)
+    }
+
     private fun applyLocaleToResources(languageCode: String) {
         val locale = Locale(languageCode)
         Locale.setDefault(locale)
@@ -158,6 +175,10 @@ class MainActivity : ComponentActivity() {
         @Suppress("DEPRECATION")
         applicationContext.resources.updateConfiguration(config, applicationContext.resources.displayMetrics)
     }
+
+    companion object {
+        const val EXTRA_OPEN_FORECAST = "extra_open_forecast"
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -167,8 +188,19 @@ fun MainScreen(
     weatherViewModel: WeatherViewModel,
     favViewModel: FavViewModel,
     alertViewModel: AlertViewModel,
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel,
+    shouldOpenForecastFromNotification: Boolean = false,
+    onNotificationNavigationHandled: () -> Unit = {}
 ) {
+    val settings by settingsViewModel.settings.collectAsState()
+    LaunchedEffect(shouldOpenForecastFromNotification, settings.mapLatitude, settings.mapLongitude) {
+        if (shouldOpenForecastFromNotification) {
+            navController.navigate(
+                "forecast?lat=${settings.mapLatitude.toFloat()}&lon=${settings.mapLongitude.toFloat()}"
+            )
+            onNotificationNavigationHandled()
+        }
+    }
     Box(modifier = Modifier.fillMaxSize()) {
         NavGraph(navController, weatherViewModel, favViewModel, alertViewModel, settingsViewModel)
         BottomBar(

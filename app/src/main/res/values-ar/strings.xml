@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">المشروع النهائي</string>
+    <string name="app_name">Tempo</string>
     <string name="notification_channel_alerts_name">تنبيهات الطقس</string>
     <string name="notification_channel_alerts_desc">تنبيهات الطقس والإشعارات المجدولة</string>
     <string name="notification_channel_alerts_sound_name">تنبيهات الطقس (صوت)</string>
