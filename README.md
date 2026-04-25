@@ -73,7 +73,7 @@ The app uses **OpenWeather** as the remote data source, **Room** for local persi
 
 Tempo follows a **layered architecture** with clear separation between presentation, business models/contracts, and data sources:
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                      PRESENTATION                           │
 │       Compose UI, Navigation, ViewModels, UI State          │
@@ -87,17 +87,17 @@ Tempo follows a **layered architecture** with clear separation between presentat
 ┌────────────────────────────▼────────────────────────────────┐
 │                          DATA                               │
 │   Repository Implementations + Local/Remote Data Sources    │
-└──────┬───────────────────────────────┬──────────────────────┘
-       │                               │
-  ┌────▼─────┐                    ┌────▼──────────────┐
-  │   Room   │                    │   Retrofit API    │
-  │ (Local)  │                    │ + OpenWeather API │
-  └──────────┘                    └───────────────────┘
-                             │
-                      ┌──────▼──────┐
-                      │ WorkManager │
-                      │ Alert jobs  │
-                      └─────────────┘
+└───────────────────┬───────────────────────┬─────────────────┘
+                    │                       │
+          ┌─────────▼─────────┐   ┌────────▼──────────────┐
+          │       Room DB     │   │     Retrofit API      │
+          │   Local storage   │   │ + OpenWeather service │
+          └─────────┬─────────┘   └───────────────────────┘
+                    │
+          ┌─────────▼─────────┐
+          │    WorkManager    │
+          │   Alert jobs      │
+          └───────────────────┘
 ```
 
 ### Navigation Flow
