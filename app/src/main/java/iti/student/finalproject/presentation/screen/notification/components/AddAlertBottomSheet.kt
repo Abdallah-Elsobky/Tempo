@@ -286,6 +286,7 @@ private fun calendarStartFromPickerMillis(millis: Long): Long {
 private fun todayStartMillis(): Long =
     calendarStartFromPickerMillis(Calendar.getInstance().timeInMillis)
 
+@OptIn(ExperimentalMaterial3Api::class)
 private fun selectableFromDayOnward(minDayStartInclusive: Long) = object : SelectableDates {
     override fun isSelectableDate(utcTimeMillis: Long): Boolean {
         return calendarStartFromPickerMillis(utcTimeMillis) >= minDayStartInclusive
