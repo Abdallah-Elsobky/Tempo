@@ -71,4 +71,8 @@
     <string name="forecast_humidity_label">الرطوبة</string>
     <string name="forecast_cloud_label">السحب</string>
     <string name="forecast_pressure_label">الضغط</string>
+    <string name="forecast_now">الآن</string>
+    <string name="no_favorites_yet">لا توجد أماكن مفضلة بعد.\nاضغط + لإضافة موقع من الخريطة.</string>
+    <string name="date_must_be_future">اختر تاريخًا ووقتًا في المستقبل وليس في الماضي.</string>
+    <string name="end_must_be_after_start">يجب أن يكون وقت النهاية بعد وقت البداية.</string>
 </resources>

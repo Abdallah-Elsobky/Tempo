@@ -100,10 +100,10 @@ fun ForecastScreen(
     )
 
     LaunchedEffect(lat, lon, settings.language, settings.apiUnits) {
-        viewModel.loadForecast(lat.toDouble(), lon.toDouble(), settings.language.code, settings.apiUnits)
+        viewModel.loadDetailForecast(lat.toDouble(), lon.toDouble(), settings.language.code, settings.apiUnits)
     }
 
-    val forecastState by viewModel.forecastState.collectAsState()
+    val forecastState by viewModel.detailForecastState.collectAsState()
 
     when (forecastState) {
         is ResultState.Error -> {
@@ -141,7 +141,10 @@ fun ForecastContent(
     onBackClick: () -> Unit
 ) {
 
-    val forecasts = forecastState.data.filter { it.dayTime == "12 AM" }
+    val forecasts = forecastState.data
+        .groupBy { it.dtTxt.take(10) }
+        .map { (_, slots) -> slots.minByOrNull { it.dtTxt } ?: slots.first() }
+        .sortedBy { it.dtTxt }
     val windValue = if (settings.windSpeedUnit == WindSpeedUnit.KMH) {
         "${roundTo(forecasts.get(0).windSpeed * 3.6f, 1)} km/h"
     } else {

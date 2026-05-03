@@ -79,7 +79,7 @@ fun NavGraph(
                 weatherViewModel,
                 settings = settingsViewModel.settings.collectAsState().value,
                 onBackClick = {
-                    navController.popBackStack(Screen.Home.route, false)
+                    navController.popBackStack()
                 }
             )
         }

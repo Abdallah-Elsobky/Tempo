@@ -12,19 +12,25 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.core.text.TextUtilsCompat
+import android.view.View
 import iti.student.finalproject.R
 import iti.student.finalproject.presentation.navigation.BottomNavItem
 import iti.student.finalproject.presentation.navigation.Screen
-import iti.student.finalproject.presentation.screen.WeatherViewModel
+import java.util.Locale
 
 @Composable
 fun BottomBar(navController: NavController, modifier: Modifier = Modifier) {
@@ -57,31 +63,54 @@ fun BottomBar(navController: NavController, modifier: Modifier = Modifier) {
             shadowElevation = 20.dp,
             color = androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(alpha = 0.97f)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceAround,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items.forEach { item ->
-                    NavigationBarItem(
-                        selected = currentRoute == item.route,
-                        onClick = {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.startDestinationId)
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = { Icon(item.icon, contentDescription = item.title) },
-//                    label = { Text(item.title) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = colorResource(R.color.blue),
-                            unselectedIconColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                            selectedTextColor = colorResource(R.color.blue),
-                            unselectedTextColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                            indicatorColor = Color.Transparent
+            val configuration = LocalConfiguration.current
+            val locale =
+                configuration.locales[0] ?: Locale.getDefault()
+            val navLayoutDirection =
+                if (TextUtilsCompat.getLayoutDirectionFromLocale(locale) == View.LAYOUT_DIRECTION_RTL) {
+                    LayoutDirection.Rtl
+                } else {
+                    LayoutDirection.Ltr
+                }
+
+            CompositionLocalProvider(LocalLayoutDirection provides navLayoutDirection) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement =
+                        androidx.compose.foundation.layout.Arrangement.SpaceAround,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items.forEach { item ->
+                        NavigationBarItem(
+                            selected = currentRoute == item.route,
+                            onClick = {
+                                navController.navigate(item.route) {
+                                    popUpTo(navController.graph.startDestinationId)
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            icon = {
+                                Icon(
+                                    item.icon,
+                                    contentDescription = item.title
+                                )
+                            },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = colorResource(R.color.blue),
+                                unselectedIconColor =
+                                    androidx.compose.material3.MaterialTheme.colorScheme.onSurface.copy(
+                                        alpha = 0.6f
+                                    ),
+                                selectedTextColor = colorResource(R.color.blue),
+                                unselectedTextColor =
+                                    androidx.compose.material3.MaterialTheme.colorScheme.onSurface.copy(
+                                        alpha = 0.6f
+                                    ),
+                                indicatorColor = Color.Transparent
+                            )
                         )
-                    )
+                    }
                 }
             }
         }

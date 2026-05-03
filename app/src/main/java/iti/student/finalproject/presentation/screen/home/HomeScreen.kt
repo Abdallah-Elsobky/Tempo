@@ -8,7 +8,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -28,6 +27,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -45,8 +47,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -69,6 +69,7 @@ import iti.student.finalproject.utils.ResultState
 
 
 @RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen(
     viewModel: WeatherViewModel,
@@ -84,21 +85,21 @@ fun HomeScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            requestCurrentLocationAndLoadWeather(viewModel, context, settings)
+            requestCurrentLocationAndLoadHomeWeather(viewModel, context, settings)
         } else {
             showPermissionSettingsDialog = true
         }
     }
 
-    LaunchedEffect(settings.locationMode, settings.language, settings.apiUnits) {
+    fun triggerHomeLoad() {
         if (settings.locationMode == LocationMode.MAP) {
-            viewModel.loadWeather(
+            viewModel.loadHomeWeather(
                 settings.mapLatitude,
                 settings.mapLongitude,
                 settings.language.code,
                 settings.apiUnits
             )
-            viewModel.loadForecast(
+            viewModel.loadHomeForecast(
                 settings.mapLatitude,
                 settings.mapLongitude,
                 settings.language.code,
@@ -111,45 +112,124 @@ fun HomeScreen(
             ) == PackageManager.PERMISSION_GRANTED
 
             if (granted) {
-                requestCurrentLocationAndLoadWeather(viewModel, context, settings)
+                requestCurrentLocationAndLoadHomeWeather(viewModel, context, settings)
             } else {
                 permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             }
         }
     }
 
-    val weatherState by viewModel.weatherState.collectAsState()
-    val forecastState by viewModel.forecastState.collectAsState()
+    LaunchedEffect(settings.locationMode, settings.language, settings.apiUnits) {
+        triggerHomeLoad()
+    }
+
+    val weatherState by viewModel.homeWeatherState.collectAsState()
+    val forecastState by viewModel.homeForecastState.collectAsState()
+
+    var lastWeather by remember { mutableStateOf<WeatherModel?>(null) }
+    var lastForecast by remember { mutableStateOf<List<ForecastModel>?>(null) }
+
+    LaunchedEffect(weatherState) {
+        when (weatherState) {
+            is ResultState.Success -> lastWeather = (weatherState as ResultState.Success).data
+            else -> Unit
+        }
+    }
+    LaunchedEffect(forecastState) {
+        when (forecastState) {
+            is ResultState.Success -> lastForecast = (forecastState as ResultState.Success).data
+            else -> Unit
+        }
+    }
+
+    val weatherDisplay = when (weatherState) {
+        is ResultState.Success -> (weatherState as ResultState.Success).data
+        else -> lastWeather
+    }
+    val forecastDisplay = when (forecastState) {
+        is ResultState.Success -> (forecastState as ResultState.Success).data
+        else -> lastForecast
+    }
+
+    val hasCachedContent = weatherDisplay != null && forecastDisplay != null
+    val awaitingFirstLoad =
+        (weatherState is ResultState.Loading || forecastState is ResultState.Loading) && !hasCachedContent
+
+    var pullRefreshing by remember { mutableStateOf(false) }
+    LaunchedEffect(weatherState, forecastState, pullRefreshing) {
+        if (
+            pullRefreshing &&
+            weatherState !is ResultState.Loading &&
+            forecastState !is ResultState.Loading
+        ) {
+            pullRefreshing = false
+        }
+    }
+
+    val showPullRefreshGlow =
+        pullRefreshing ||
+            (hasCachedContent && (weatherState is ResultState.Loading || forecastState is ResultState.Loading))
+
+    val pullRefreshState =
+        rememberPullRefreshState(refreshing = showPullRefreshGlow, onRefresh = {
+            pullRefreshing = true
+            triggerHomeLoad()
+        })
 
     when {
-        weatherState is ResultState.Loading || forecastState is ResultState.Loading -> {
+        awaitingFirstLoad -> {
             Box(Modifier.fillMaxSize()) {
                 CircularProgressIndicator(Modifier.align(Alignment.Center))
             }
         }
 
-        weatherState is ResultState.Error -> {
+        weatherState is ResultState.Error && lastWeather == null -> {
             Box(Modifier.fillMaxSize()) {
                 Text((weatherState as ResultState.Error).message)
             }
         }
 
-        forecastState is ResultState.Error -> {
+        forecastState is ResultState.Error && lastForecast == null -> {
             Box(Modifier.fillMaxSize()) {
                 Text((forecastState as ResultState.Error).message)
             }
         }
 
-        weatherState is ResultState.Success && forecastState is ResultState.Success -> {
-            val weather = (weatherState as ResultState.Success).data
-            val forecast = (forecastState as ResultState.Success).data
+        hasCachedContent && weatherDisplay != null && forecastDisplay != null -> {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .pullRefresh(pullRefreshState)
+            ) {
+                HomeContent(
+                    weatherDisplay!!,
+                    forecastDisplay!!,
+                    settings,
+                    onNavigateToForecast = { onNavigateToForecast(weatherDisplay.lon, weatherDisplay.lat) }
+                )
 
-            HomeContent(
-                weather,
-                forecast,
-                settings,
-                { onNavigateToForecast(weather.lon, weather.lat) }
-            )
+                androidx.compose.material.pullrefresh.PullRefreshIndicator(
+                    refreshing = showPullRefreshGlow,
+                    state = pullRefreshState,
+                    modifier = Modifier.align(Alignment.TopCenter)
+                )
+
+                if ((weatherState is ResultState.Error && lastWeather != null) ||
+                    (forecastState is ResultState.Error && lastForecast != null)
+                ) {
+                    val msg = when {
+                        weatherState is ResultState.Error -> (weatherState as ResultState.Error).message
+                        else -> (forecastState as ResultState.Error).message
+                    }
+                    Text(
+                        msg,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 32.dp)
+                    )
+                }
+            }
         }
     }
 
@@ -189,7 +269,6 @@ fun HomeContent(
     settings: AppSettings,
     onNavigateToForecast: () -> Unit = {}
 ) {
-    Log.d("loco", forecast.toString())
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -295,7 +374,7 @@ fun ForecastItem(onNavigateToForecast: () -> Unit = {}) {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-private fun requestCurrentLocationAndLoadWeather(
+private fun requestCurrentLocationAndLoadHomeWeather(
     viewModel: WeatherViewModel,
     context: Context,
     settings: AppSettings
@@ -307,18 +386,17 @@ private fun requestCurrentLocationAndLoadWeather(
                 if (location != null) {
                     val lat = location.latitude
                     val lon = location.longitude
-                    viewModel.loadWeather(lat, lon, settings.language.code, settings.apiUnits)
-                    viewModel.loadForecast(lat, lon, settings.language.code, settings.apiUnits)
+                    viewModel.loadHomeWeather(lat, lon, settings.language.code, settings.apiUnits)
+                    viewModel.loadHomeForecast(lat, lon, settings.language.code, settings.apiUnits)
                 } else {
-                    viewModel.loadWeather(35.0, 39.0, settings.language.code, settings.apiUnits)
-                    viewModel.loadForecast(35.0, 39.0, settings.language.code, settings.apiUnits)
+                    viewModel.loadHomeWeather(35.0, 39.0, settings.language.code, settings.apiUnits)
+                    viewModel.loadHomeForecast(35.0, 39.0, settings.language.code, settings.apiUnits)
                 }
             }
             .addOnFailureListener {
-                viewModel.loadWeather(35.0, 39.0, settings.language.code, settings.apiUnits)
-                viewModel.loadForecast(35.0, 39.0, settings.language.code, settings.apiUnits)
+                viewModel.loadHomeWeather(35.0, 39.0, settings.language.code, settings.apiUnits)
+                viewModel.loadHomeForecast(35.0, 39.0, settings.language.code, settings.apiUnits)
             }
-    } catch (e: SecurityException) {
-
+    } catch (_: SecurityException) {
     }
 }

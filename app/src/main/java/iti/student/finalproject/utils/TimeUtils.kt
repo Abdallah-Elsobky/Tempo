@@ -12,7 +12,7 @@ import java.util.Locale
 object TimeUtils {
     fun getDayMonth(date: String): String {
         val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-        val outputFormatter = DateTimeFormatter.ofPattern("d MMM", Locale.ENGLISH)
+        val outputFormatter = DateTimeFormatter.ofPattern("d MMM", Locale.getDefault())
 
         val dateTime = LocalDateTime.parse(date, inputFormatter)
         return dateTime.format(outputFormatter)
@@ -20,7 +20,7 @@ object TimeUtils {
 
     fun getTime(date: String): String {
         val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-        val outputFormatter = DateTimeFormatter.ofPattern("h a", Locale.ENGLISH)
+        val outputFormatter = DateTimeFormatter.ofPattern("h a", Locale.getDefault())
 
         val dateTime = LocalDateTime.parse(date, inputFormatter)
         return dateTime.format(outputFormatter)
@@ -28,7 +28,7 @@ object TimeUtils {
 
     fun getDayName(date: String): String {
         val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-        val outputFormatter = DateTimeFormatter.ofPattern("EEE", Locale.ENGLISH)
+        val outputFormatter = DateTimeFormatter.ofPattern("EEE", Locale.getDefault())
 
         val dateTime = LocalDateTime.parse(date, inputFormatter)
         return dateTime.format(outputFormatter)

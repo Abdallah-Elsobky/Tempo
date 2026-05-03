@@ -1,6 +1,5 @@
 package iti.student.finalproject.presentation.components
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -63,7 +63,7 @@ private fun HourlyCard(item: ForecastModel, index: Int, temperatureUnit: Tempera
             modifier = Modifier.padding(vertical = 16.dp, horizontal = 12.dp)
         ) {
             Text(
-                text = if (index == 0) "Now" else item.dayName,
+                text = if (index == 0) stringResource(R.string.forecast_now) else item.dayName,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 color = secondaryColor

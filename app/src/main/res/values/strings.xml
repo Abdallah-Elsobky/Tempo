@@ -71,4 +71,8 @@
     <string name="forecast_humidity_label">HUMIDITY</string>
     <string name="forecast_cloud_label">CLOUD</string>
     <string name="forecast_pressure_label">PRESSURE</string>
+    <string name="forecast_now">Now</string>
+    <string name="no_favorites_yet">No favorite locations yet.\nTap + to add one from the map.</string>
+    <string name="date_must_be_future">Choose a future date and time (not in the past).</string>
+    <string name="end_must_be_after_start">End date and time must be after the start.</string>
 </resources>
