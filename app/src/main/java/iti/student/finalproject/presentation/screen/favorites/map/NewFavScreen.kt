@@ -78,11 +78,11 @@ fun NewFavScreen(
     var searchQuery by remember { mutableStateOf("") }
 
     LaunchedEffect(settings.language, settings.apiUnits) {
-        weatherModel.loadWeather(selectedLat, selectedLon, settings.language.code, settings.apiUnits)
+        weatherModel.loadPickerWeather(selectedLat, selectedLon, settings.language.code, settings.apiUnits)
         weatherModel.loadPossibleCities("cairo")
     }
 
-    val weatherState by weatherModel.weatherState.collectAsState()
+    val weatherState by weatherModel.pickerWeatherState.collectAsState()
     val cityState by weatherModel.possibleCitiesState.collectAsState()
 
     LaunchedEffect(searchQuery) {
@@ -97,7 +97,7 @@ fun NewFavScreen(
             val city = state.data.first()
             selectedLat = city.lat
             selectedLon = city.lon
-            weatherModel.loadWeather(
+            weatherModel.loadPickerWeather(
                 selectedLat,
                 selectedLon,
                 settings.language.code,
@@ -113,7 +113,7 @@ fun NewFavScreen(
         StreetMapView(selectedLat, selectedLon) { lat, lon ->
             selectedLat = lat
             selectedLon = lon
-            weatherModel.loadWeather(lat, lon, settings.language.code, settings.apiUnits)
+            weatherModel.loadPickerWeather(lat, lon, settings.language.code, settings.apiUnits)
             settingsViewModel.setMapLocation(lat, lon)
             showSheet = true
         }
@@ -140,6 +140,7 @@ fun NewFavScreen(
                     onAddFavourite = {
                         favViewModel.insertFavorite(it)
                         showSheet = false
+                        onBackClick()
                     }
                 )
             }

@@ -90,6 +90,16 @@ fun FavoritesScreen(
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onBackground
             )
+            if (favState.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.no_favorites_yet),
+                    fontSize = 15.sp,
+                    lineHeight = 22.sp,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+                )
+            }
             favState.forEach { favLocation ->
                 LocationItemCard(
                     favLocation,

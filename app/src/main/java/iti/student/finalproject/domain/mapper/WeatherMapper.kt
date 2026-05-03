@@ -34,6 +34,7 @@ object WeatherMapper {
         val list = mutableListOf<ForecastModel>()
         dto.list.forEach {
             val forecast = ForecastModel(
+                dtTxt = it.dtTxt,
                 dayDate = getDayMonth(it.dtTxt),
                 dayName = getDayName(it.dtTxt),
                 dayTime = getTime(it.dtTxt),

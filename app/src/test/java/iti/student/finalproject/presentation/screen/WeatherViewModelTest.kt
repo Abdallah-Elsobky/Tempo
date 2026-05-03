@@ -190,7 +190,7 @@ class WeatherViewModelTest {
         viewModel.loadForecast(10.0, 20.0)
         advanceUntilIdle()
 
-        val state = viewModel.forecastState.value
+        val state = viewModel.homeForecastState.value
         assert(state is ResultState.Success)
     }
 

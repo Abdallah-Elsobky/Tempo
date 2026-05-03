@@ -15,8 +15,9 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
@@ -31,7 +32,6 @@ import iti.student.finalproject.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import iti.student.finalproject.data.local.entity.AlertEntity
 import iti.student.finalproject.presentation.screen.notification.AlertType
 import iti.student.finalproject.ui.theme.WeatherAccentBlue
 import java.util.Calendar
@@ -59,6 +59,8 @@ fun AddAlertBottomSheet(
 
     var openStartPicker by remember { mutableStateOf(false) }
     var openEndPicker by remember { mutableStateOf(false) }
+
+    var validationMessageId by remember { mutableStateOf<Int?>(null) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss
@@ -113,9 +115,17 @@ fun AddAlertBottomSheet(
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
-                    if (startDate != null && endDate != null) {
-                        onSave(startDate!!, endDate!!, selectedType)
+                    if (startDate == null || endDate == null) return@Button
+                    val now = System.currentTimeMillis()
+                    if (startDate!! <= now || endDate!! <= now) {
+                        validationMessageId = R.string.date_must_be_future
+                        return@Button
                     }
+                    if (endDate!! <= startDate!!) {
+                        validationMessageId = R.string.end_must_be_after_start
+                        return@Button
+                    }
+                    onSave(startDate!!, endDate!!, selectedType)
                 },
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -129,7 +139,7 @@ fun AddAlertBottomSheet(
 
     if (openStartPicker) {
 
-        val state = rememberDatePickerState()
+        val state = rememberDatePickerState(selectableDates = selectableFromDayOnward(todayStartMillis()))
 
         DatePickerDialog(
             onDismissRequest = { openStartPicker = false },
@@ -147,7 +157,12 @@ fun AddAlertBottomSheet(
 
     if (openEndPicker) {
 
-        val state = rememberDatePickerState()
+        val minEndDay = maxOf(
+            todayStartMillis(),
+            startDate?.let { calendarStartFromPickerMillis(it) } ?: todayStartMillis()
+        )
+        val state =
+            rememberDatePickerState(selectableDates = selectableFromDayOnward(minEndDay))
 
         DatePickerDialog(
             onDismissRequest = { openEndPicker = false },
@@ -175,7 +190,7 @@ fun AddAlertBottomSheet(
                     startHour = timeState.hour
                     startMinute = timeState.minute
 
-                    startDate = startDate?.let {
+                    val combined = startDate?.let {
                         val calendar = Calendar.getInstance().apply {
                             timeInMillis = it
                             set(Calendar.HOUR_OF_DAY, startHour)
@@ -183,8 +198,14 @@ fun AddAlertBottomSheet(
                             set(Calendar.SECOND, 0)
                             set(Calendar.MILLISECOND, 0)
                         }
-
                         calendar.timeInMillis
+                    }
+                    combined?.let {
+                        if (it <= System.currentTimeMillis()) {
+                            validationMessageId = R.string.date_must_be_future
+                        } else {
+                            startDate = it
+                        }
                     }
 
                     openStartTimePicker = false
@@ -209,8 +230,7 @@ fun AddAlertBottomSheet(
                     endHour = timeState.hour
                     endMinute = timeState.minute
 
-                    endDate = endDate?.let {
-
+                    val combined = endDate?.let {
                         val calendar = Calendar.getInstance().apply {
                             timeInMillis = it
                             set(Calendar.HOUR_OF_DAY, endHour)
@@ -218,8 +238,17 @@ fun AddAlertBottomSheet(
                             set(Calendar.SECOND, 0)
                             set(Calendar.MILLISECOND, 0)
                         }
-
                         calendar.timeInMillis
+                    }
+                    combined?.let { ts ->
+                        val now = System.currentTimeMillis()
+                        when {
+                            ts <= now -> validationMessageId = R.string.date_must_be_future
+                            startDate != null && ts <= startDate!! ->
+                                validationMessageId = R.string.end_must_be_after_start
+
+                            else -> endDate = ts
+                        }
                     }
 
                     openEndTimePicker = false
@@ -229,5 +258,36 @@ fun AddAlertBottomSheet(
                 TimePicker(state = timeState)
             }
         )
+    }
+
+    validationMessageId?.let { msgId ->
+        AlertDialog(
+            onDismissRequest = { validationMessageId = null },
+            confirmButton = {
+                TextButton(onClick = { validationMessageId = null }) {
+                    Text(stringResource(R.string.ok))
+                }
+            },
+            text = { Text(stringResource(msgId)) }
+        )
+    }
+}
+
+private fun calendarStartFromPickerMillis(millis: Long): Long {
+    return Calendar.getInstance().apply {
+        timeInMillis = millis
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
+}
+
+private fun todayStartMillis(): Long =
+    calendarStartFromPickerMillis(Calendar.getInstance().timeInMillis)
+
+private fun selectableFromDayOnward(minDayStartInclusive: Long) = object : SelectableDates {
+    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+        return calendarStartFromPickerMillis(utcTimeMillis) >= minDayStartInclusive
     }
 }
